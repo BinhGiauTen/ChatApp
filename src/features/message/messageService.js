@@ -3,10 +3,10 @@ import { base_url } from "../../utils/base_url";
 import { config } from "../../utils/axiosconfig";
 
 
-const sendMessage = async (receiverId, message) => {
+const sendMessage = async (receiverId, message, conversationName) => {
   const response = await axios.post(
     `${base_url}messages/send/${receiverId}`,
-    { receiverId, message },
+    {  message, conversationName },
     config
   );
   return response.data;
@@ -28,9 +28,29 @@ const getAllConversations = async (id) => {
   return response.data;
 };
 
+const getAConversation = async (id, conversationId) => {
+  const response = await axios.get(
+    `${base_url}messages/conversation/${id}/${conversationId}`,
+    config
+  );
+  return response.data;
+};
+
+const deleteMessage = async (id, participantId, messageId) => {
+  const response = await axios.post(
+    `${base_url}messages/delete/${id}/${participantId}/${messageId}`,
+    config
+  );
+  return response.data;
+};
+
+
+
 const messageService = {
   sendMessage,
   getAllMessages,
-  getAllConversations
+  getAllConversations,
+  getAConversation,
+  deleteMessage
 };
 export default messageService;

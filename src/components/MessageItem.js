@@ -1,17 +1,24 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAConversation, getAllMessages } from "../features/message/messageSlice";
 
 function MessageItem({ showMessageViewHandler, data }) {
-  const handleClick = () => {
-    showMessageViewHandler();
-  };
-  // Nhận data là conversations được get từ DB
-  console.log("Data:", data);
+  const dispatch = useDispatch();
+  const userState = useSelector((state) => state?.user?.user?.user || state?.user?.user)
+  const handleClick = (item) => {
+    showMessageViewHandler(item);
+    console.log("Item:", item);
+    // Lấy tin nhắn của người nhận chat có _id khác với userState._id
+  const receiverId = item?.participants?.find(participant => participant?._id !== userState?._id)?._id;
+  dispatch(getAllMessages(receiverId));
+  dispatch(getAConversation({id: userState?._id, conversationId: item?._id}));
+  }
 
   return (
     <>
-      {data.map((item, index) => {
+      {data?.map((item, index) => {
         return (
-          <div className="message-item" onClick={handleClick}>
+          <div key={index} className="message-item" onClick={() => handleClick(item)}>
             <div className="d-flex align-items-center justify-content-center">
               <div className="avatar-contact">
                 <img

@@ -9,19 +9,23 @@ const initialState = {
   message: "",
 };
 
-export const sendMessage= createAsyncThunk(
+export const sendMessage = createAsyncThunk(
   "message/send-message",
-  async ({receicerId, message}, thunkAPI) => {
+  async ({ receiverId, message, conversationName }, thunkAPI) => {
     try {
-      return await messageService.sendMessage(receicerId, message);
+      return await messageService.sendMessage(
+        receiverId,
+        message,
+        conversationName
+      );
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
   }
 );
-export const getAllMessages= createAsyncThunk(
+export const getAllMessages = createAsyncThunk(
   "message/get-all-message",
-  async (id,thunkAPI) => {
+  async (id, thunkAPI) => {
     try {
       return await messageService.getAllMessages(id);
     } catch (error) {
@@ -29,11 +33,34 @@ export const getAllMessages= createAsyncThunk(
     }
   }
 );
-export const getAllConversations= createAsyncThunk(
-    "message/get-all-conversation",
-  async (id,thunkAPI) => {
+export const getAllConversations = createAsyncThunk(
+  "message/get-all-conversation",
+  async (id, thunkAPI) => {
     try {
       return await messageService.getAllConversations(id);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+export const getAConversation = createAsyncThunk(
+  "message/get-a-conversation",
+  async ({ id, conversationId }, thunkAPI) => {
+    try {
+      return await messageService.getAConversation(id, conversationId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const deleteMessage = createAsyncThunk(
+  "message/delete-message",
+  async ({ id, participantId, messageId }, thunkAPI) => {
+    try {
+      return await messageService.deleteMessage(
+        id, participantId, messageId
+      );
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
@@ -88,6 +115,36 @@ export const messageSlice = createSlice({
         state.getAllConversations = action.payload;
       })
       .addCase(getAllConversations.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(getAConversation.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getAConversation.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.getAConversation = action.payload;
+      })
+      .addCase(getAConversation.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(deleteMessage.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteMessage.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.deletedMessage = action.payload;
+      })
+      .addCase(deleteMessage.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;

@@ -34,7 +34,6 @@ function ModalAddFriend() {
   const handleSearch = () => {
     dispatch(findUserByPhones({ id: userState?._id, phones: phoneNumber }));
   };
-  console.log("Phone number:", phoneNumber);
 
   const findUserByPhone = useSelector((state) => state?.user?.findUserByPhone);
   const createdFriendRequest = useSelector(
@@ -63,7 +62,7 @@ function ModalAddFriend() {
   }, [firstUser]);
   useEffect(() => {
     if (findUserByPhone?.length <= 0) {
-      toast.error("Số điện thoại này chưa được đăng ký !!!");
+      toast.error("Số điện thoại này không hợp lệ hoặc chưa được đăng ký !!!");
     }
   }, [findUserByPhone]);
   useEffect(() => {
