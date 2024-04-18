@@ -4,21 +4,34 @@ import Header from "../components/Header";
 import MessageView from "../components/MessageView";
 import FriendList from "../components/FriendList";
 import HomePageSlider from "../components/HomePageSlider";
+import MessageViewGroup from "../components/MessageViewGroup";
+import HeaderGroup from "../components/HeaderGroup";
 
 function ChatBox() {
   const [showMessageView, setShowMessageView] = useState(false);
+  const [showMessageViewGroup, setShowMessageViewGroup] = useState(false);
 
   const showMessageViewHandler = () => {
     setShowMessageView(true);
+    setShowMessageViewGroup(false);
+  };
+  const showMessageViewGroupHandler = () => {
+    setShowMessageViewGroup(true);
+    setShowMessageView(false);
   };
   return (
     <div className="d-flex w-100">
-      <FriendList showMessageViewHandler={showMessageViewHandler} />
+      <FriendList showMessageViewHandler={showMessageViewHandler} showMessageViewGroupHandler={showMessageViewGroupHandler}/>
       <div className="chat-on-board w-100">
-        {showMessageView ? (
+      {showMessageView ? (
           <div>
             <Header />
             <MessageView />
+          </div>
+        ) : showMessageViewGroup ? (
+          <div>
+            <HeaderGroup />
+            <MessageViewGroup />
           </div>
         ) : (
           <div>
@@ -35,8 +48,6 @@ function ChatBox() {
           </div>
         )}
       </div>
-
-      
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import ContactSearch from "../components/ContactSearch";
 import { IoSearchOutline } from "react-icons/io5";
 import { IoIosMore } from "react-icons/io";
@@ -10,6 +10,8 @@ import { PiUserListBold } from "react-icons/pi";
 import { RiGroupLine } from "react-icons/ri";
 import { BsChatText } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
+import { SocketContext } from "../context/SocketContext";
+
 import {
   cancelFriendRequest,
   confirmFriendAccept,
@@ -21,6 +23,7 @@ import {
 import { getaUser } from "../features/user/userSlice";
 
 function Contact() {
+  const { socket } = useContext(SocketContext);
   const [selectedList, setSelectedList] = useState("friends");
   const [selectedItem, setSelectedItem] = useState("null");
   const handleListClick = (name) => {
@@ -71,6 +74,15 @@ function Contact() {
     dispatch(getaUser(userState?._id));
     dispatch(resetState());
   };
+
+  useEffect(() => {
+    socket?.on("acceptedFriendRequest", (requester) => {
+      console.log("Requester:", requester)
+      dispatch(getFriendsList(userState?._id));
+    });
+
+    // return () => socket.off("delMessage");
+  }, [socket]);
 
   return (
     <div className="contact">

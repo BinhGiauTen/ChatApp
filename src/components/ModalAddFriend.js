@@ -14,6 +14,7 @@ import {
   createFriendRequest,
   resetState,
 } from "../features/friend/friendSlice";
+import { getAllConversations, sendMessage } from "../features/message/messageSlice";
 
 function ModalAddFriend() {
   const [show, setShow] = useState(false);
@@ -103,13 +104,36 @@ function ModalAddFriend() {
     }
   }, [firstUser, userState]);
 
-  const handleCall = () =>{
-    console.log("Call")
-  }
+  const handleCall = () => {
+    console.log("Call");
+  };
 
-  useEffect(()=>{
+  const handleClickSendMessage = (user) => {
+    setModalType("message");
+    console.log("Info user:", user);
+  };
+
+  // Send message
+  const [inputValue, setInputValue] = useState("");
+  const handleChangeInput = (e) => {
+    setInputValue(e.target.value);
+  };
+  const handleSendMessage = (user) => {
+    if (inputValue.trim() !== "") {
+      dispatch(
+        sendMessage({
+          receiverId: user?._id,
+          message: inputValue,
+        })
+      );
+      setInputValue("");
+    }
+  };
+
+  useEffect(() => {
     dispatch(getaUser(userState?._id));
-  }, [])
+    dispatch(getAllConversations(userState?._id));
+  }, []);
   return (
     <>
       <div className="add-icon" onClick={handleShow}>
@@ -117,7 +141,7 @@ function ModalAddFriend() {
       </div>
 
       <Modal show={show} onHide={handleClose} className="modal-add-friend">
-        {modalType === "search" ? (
+        {modalType === "search" && (
           <>
             <Modal.Header closeButton>
               <Modal.Title className="label-add-contact">Thêm bạn</Modal.Title>
@@ -186,7 +210,8 @@ function ModalAddFriend() {
               </Button>
             </Modal.Footer>
           </>
-        ) : (
+        )}
+        {modalType === "info" && (
           <>
             <Modal.Header closeButton>
               <Modal.Title className="label-add-contact">
@@ -234,6 +259,7 @@ function ModalAddFriend() {
                     variant="primary"
                     type="submit"
                     style={{ width: "45%" }}
+                    onClick={() => handleClickSendMessage(firstUser)}
                   >
                     Nhắn tin
                   </Button>
@@ -261,6 +287,60 @@ function ModalAddFriend() {
                   <div className="profile-card-info-content">
                     {firstUser?.phone}
                   </div>
+                </div>
+              </div>
+            </Modal.Body>
+          </>
+        )}
+        {modalType === "message" && (
+          <>
+            <Modal.Header closeButton>
+              <Modal.Title className="label-add-contact">
+                <div className="d-flex gap-3">
+                  <MdOutlineKeyboardArrowLeft
+                    className="icon-back"
+                    onClick={handleBackToDefault} // Gọi hàm handleBackToDefault khi nhấn nút back
+                  />
+                  <div className="label-add-contact">Nhắn tin</div>
+                </div>
+              </Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body style={{ padding: 0 }}>
+              <div className="wrapper-find">
+                <div className="profile-info-container-find">
+                  <div className="profile-info-avatar">
+                    <img
+                      src={avatarSrc}
+                      alt=""
+                      className="profile-info-avatar-img"
+                    />
+                  </div>
+                  <div className="profile-info-name">{firstUser?.username}</div>
+                </div>
+                <div
+                  className="d-flex flex-column "
+                  style={{ padding: "20px" }}
+                >
+                  <div>Nhập tin nhắn tại đây:</div>
+                  <input
+                    style={{ height: "100px" }}
+                    type="text"
+                    value={inputValue}
+                    onChange={handleChangeInput}
+                  />
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    style={{
+                      width: "30%",
+                      marginLeft: "35%",
+                      marginTop: "20px",
+                    }}
+                    onClick={() => handleSendMessage(firstUser)}
+                  >
+                    Gửi tin nhắn
+                  </Button>
                 </div>
               </div>
             </Modal.Body>

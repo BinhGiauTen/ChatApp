@@ -13,9 +13,8 @@ const createFriendRequest = async (requestId, recipentId) => {
 };
 
 const confirmFriendAccept = async (id, requesterId) => {
-  const response = await axios.put(
+  const response = await axios.get(
     `${base_url}friends/${id}/${requesterId}/accept`,
-    { id, requesterId },
     config
   );
   return response.data;
@@ -38,9 +37,8 @@ const getFriendList = async (id) => {
 };
 
 const cancelFriendRequest = async (id, recipentId) => {
-  const response = await axios.put(
+  const response = await axios.get(
     `${base_url}friends/${id}/${recipentId}/cancel`,
-    { id, recipentId },
     config
   );
   return response.data;

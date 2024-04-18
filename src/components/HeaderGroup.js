@@ -1,19 +1,15 @@
 import React from "react";
-import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { IoSearchOutline } from "react-icons/io5";
 import { RiLiveLine } from "react-icons/ri";
 import { BsLayoutSidebarReverse } from "react-icons/bs";
 import { CiShoppingTag } from "react-icons/ci";
 import { useSelector } from "react-redux";
-function Header() {
-  const userState = useSelector(
-    (state) => state?.user?.user?.user || state?.user?.user
-  );
+import ModalAddUserToGroup from "./ModalAddUserToGroup";
+function HeaderGroup() {
   // Lấy conversation
   const conversationState = useSelector(
     (state) => state?.message?.getAConversation
   );
-  console.log("Conversation:", conversationState);
   return (
     <>
       <header className="header">
@@ -23,13 +19,7 @@ function Header() {
               src={
                 conversationState?.conversationImage
                   ? conversationState?.conversationImage
-                  : conversationState?.participants?.find(
-                      (participant) => participant?._id !== userState?._id
-                    )?.avatar === "https://example.com/cute-pusheen.jpg"
-                  ? "images/avatar-default.jpg"
-                  : conversationState?.participants?.find(
-                      (participant) => participant?._id !== userState?._id
-                    )?.avatar
+                  : ""
               }
               alt=""
               className="avatar-img"
@@ -39,25 +29,13 @@ function Header() {
             <div className="name-contact-header">
               {conversationState?.name
                 ? conversationState?.name
-                : conversationState?.participants?.find(
-                    (participant) => participant?._id !== userState?._id
-                  )?.username}
+                : ""}
             </div>
-            <div className="access-hisory">
-              <span className="access-history-text">
-                Truy cập ... giờ trước
-              </span>
-              <div className="border"></div>
-              <div>
-                <CiShoppingTag />
-              </div>
-            </div>
+            
           </div>
         </div>
         <div className="d-flex">
-        <div className="header-icon icon">
-            <AiOutlineUsergroupAdd className="header-icon-image" />
-          </div>
+          <ModalAddUserToGroup/>
           <div className="header-icon icon">
             <IoSearchOutline className="header-icon-image" />
           </div>
@@ -73,4 +51,4 @@ function Header() {
   );
 }
 
-export default Header;
+export default HeaderGroup;

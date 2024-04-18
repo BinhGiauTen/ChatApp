@@ -11,13 +11,9 @@ const initialState = {
 
 export const sendMessage = createAsyncThunk(
   "message/send-message",
-  async ({ receiverId, message, conversationName }, thunkAPI) => {
+  async ({ receiverId, message }, thunkAPI) => {
     try {
-      return await messageService.sendMessage(
-        receiverId,
-        message,
-        conversationName
-      );
+      return await messageService.sendMessage(receiverId, message);
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
@@ -54,13 +50,33 @@ export const getAConversation = createAsyncThunk(
   }
 );
 
+export const sendImage = createAsyncThunk(
+  "message/send-image",
+  async ({ receiverId, file }, thunkAPI) => {
+    try {
+      return await messageService.sendImage(receiverId, file);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const sendFile = createAsyncThunk(
+  "message/send-file",
+  async ({ receiverId, file }, thunkAPI) => {
+    try {
+      return await messageService.sendFile(receiverId, file);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const deleteMessage = createAsyncThunk(
   "message/delete-message",
   async ({ id, participantId, messageId }, thunkAPI) => {
     try {
-      return await messageService.deleteMessage(
-        id, participantId, messageId
-      );
+      return await messageService.deleteMessage(id, participantId, messageId);
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
@@ -145,6 +161,36 @@ export const messageSlice = createSlice({
         state.deletedMessage = action.payload;
       })
       .addCase(deleteMessage.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(sendImage.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(sendImage.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.sendImage = action.payload;
+      })
+      .addCase(sendImage.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(sendFile.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(sendFile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.sendFile = action.payload;
+      })
+      .addCase(sendFile.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;

@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import ContactSearch from "./ContactSearch";
 import { IoIosMore } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 import MessageItem from "./MessageItem";
 import {useDispatch, useSelector} from "react-redux";
 import { getAllConversations } from "../features/message/messageSlice";
+import { SocketContext } from "../context/SocketContext";
 
-function FriendList({ showMessageViewHandler }) {
+
+function FriendList({ showMessageViewHandler, showMessageViewGroupHandler }) {
+  const { socket } = useContext(SocketContext);
   const [selectedItem, setSelectedItem] = useState("all");
   const handleItemClick = (item) => {
     setSelectedItem(item);
@@ -18,6 +21,17 @@ function FriendList({ showMessageViewHandler }) {
       dispatch(getAllConversations(userState._id));
     }
   };
+
+  useEffect(() => {
+    socket?.on("newConversation", (conversation) => {
+      console.log("New conversation: ", conversation);
+    });
+
+    // return () => {
+    //   // Ngắt kết nối socket khi component unmount
+    //   socket?.disconnect();
+    // };
+  }, []);
 
   useEffect(() => {
     getConversationsFromDb();
@@ -56,12 +70,12 @@ function FriendList({ showMessageViewHandler }) {
       </div>
       {selectedItem === "all" && (
         <>
-          <MessageItem showMessageViewHandler={showMessageViewHandler} data={conversationState ? conversationState : []}/>
+          <MessageItem showMessageViewHandler={showMessageViewHandler} showMessageViewGroupHandler={showMessageViewGroupHandler} data={conversationState ? conversationState : []}/>
         </>
       )}
       {selectedItem === "unread" && (
         <>
-          <MessageItem showMessageViewHandler={showMessageViewHandler} data={conversationState ? conversationState : []}/>
+          <MessageItem showMessageViewHandler={showMessageViewHandler} showMessageViewGroupHandler={showMessageViewGroupHandler} data={conversationState ? conversationState : []}/>
         </>
       )}
     </div>

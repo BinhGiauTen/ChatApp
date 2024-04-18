@@ -13,28 +13,26 @@ import { FaRegFaceGrin } from "react-icons/fa6";
 import { IoSend } from "react-icons/io5";
 import { SlLike } from "react-icons/sl";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllMessages, sendFile, sendImage, sendMessage } from "../features/message/messageSlice";
-import ModalMessageOptions from "./ModalMessageOptions";
 import { SocketContext } from "../context/SocketContext";
+import { getGroupChatMessages, sendGroupChatFiles, sendGroupChatImages, sendGroupChatMessage } from "../features/groupChat/groupChatSlice";
 
-function MessageView() {
+function MessageViewGroup() {
   const { socket } = useContext(SocketContext);
   const dispatch = useDispatch();
   const userState = useSelector(
     (state) => state?.user?.user?.user || state?.user?.user
   );
-  const messageState = useSelector((state) => state?.message?.getAllMessages);
+  const messageGroupChatState = useSelector((state) => state?.groupChat?.getGroupChatMessages);
+  console.log("Message Group Chat:", messageGroupChatState);
   // Lấy conversation
   const conversationState = useSelector(
     (state) => state?.message?.getAConversation
   );
   // Lấy id người nhận
-  const receiverId = conversationState?.participants?.find(
-    (participant) => participant?._id !== userState?._id
-  )?._id;
-  console.log("receiverId", receiverId);
-  console.log("MessageState", messageState);
-
+  // const receiverId = conversationState?.participants?.find(
+  //   (participant) => participant?._id !== userState?._id
+  // )?._id;
+  // console.log("receiverId", receiverId);
   const [inputValue, setInputValue] = useState("");
   const [isSending, setIsSending] = useState(false);
   const handleChangeInput = (e) => {
@@ -47,10 +45,10 @@ function MessageView() {
     socket?.on("newMessage", (newMessage) => {
       if (Array.isArray(newMessage)) {
         newMessage.forEach((message) => {
-          dispatch(getAllMessages(message?.senderId));
+          dispatch(getGroupChatMessages(conversationState?._id));
         });
       } else {
-        dispatch(getAllMessages(newMessage?.senderId));
+        dispatch(getGroupChatMessages(conversationState?._id));
       }
     });
 
@@ -60,17 +58,18 @@ function MessageView() {
     // };
   }, []);
 
+
   const handleSendMessage = async () => {
     if (inputValue.trim() !== "") {
       await dispatch(
-        sendMessage({
-          receiverId: receiverId,
+        sendGroupChatMessage({
+          conversationId: conversationState?._id,
           message: inputValue,
         })
       );
       setInputValue("");
       setIsSending(false);
-      dispatch(getAllMessages(receiverId));
+      dispatch(getGroupChatMessages(conversationState?._id));
     }
   };
 
@@ -82,10 +81,10 @@ function MessageView() {
   const handleSendImage = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      await dispatch(sendImage({
-        receiverId: receiverId, file: file
+      await dispatch(sendGroupChatImages({
+        conversationId: conversationState?._id, file: file
       }))
-      dispatch(getAllMessages(receiverId));
+      dispatch(getGroupChatMessages(conversationState?._id));
     }
   };
 
@@ -97,44 +96,20 @@ function MessageView() {
   const handleSendFile = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      await dispatch(sendFile({
-        receiverId: receiverId, file: file
+      await dispatch(sendGroupChatFiles({
+        conversationId: conversationState?._id, file: file
       }))
-      dispatch(getAllMessages(receiverId));
+      dispatch(getGroupChatMessages(conversationState?._id));
     }
   };
 
 
-
-// Delete message
-  const [currentClickMessage, setCurrentClickMessage] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [closeModal, setCloseModal] = useState(true);
-  const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
-
-  const handleRightClick = (event, item) => {
-    event.preventDefault(); // Ngăn không cho menu chuột phải mặc định hiển thị
-    const position = { x: event.clientX, y: event.clientY };
-    console.log("Right click message", item);
-    console.log("Position:", position);
-
-    // Hiển thị modal với các tùy chọn và truyền item hiện tại vào để biết được đối tượng cần xử lý
-    setShowModal(true);
-    setCurrentClickMessage(item);
-    setModalPosition(position); // Lưu vị trí hiển thị modal
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setCurrentClickMessage(null);
-  };
-
   return (
     <div className="container-message">
       <div className="message-view">
-        {messageState?.map((item, index) => {
+        {messageGroupChatState?.map((item, index) => {
           return (
-            <div key={index} onContextMenu={(e) => handleRightClick(e, item)}>
+            <div key={index}>
               <div
                 className={`chat-item ${
                   item?.senderId === userState?._id ? "chat-item-me" : ""
@@ -189,12 +164,7 @@ function MessageView() {
                   </div>
                 </div>
               </div>
-              <ModalMessageOptions
-                isOpen={showModal}
-                onClose={handleCloseModal}
-                message={currentClickMessage}
-                position={modalPosition}
-              />
+              
             </div>
           );
         })}
@@ -270,4 +240,4 @@ function MessageView() {
   );
 }
 
-export default MessageView;
+export default MessageViewGroup;
