@@ -16,17 +16,17 @@ const getAllMessages = async (id) => {
   return response.data;
 };
 
-const getAllConversations = async (id) => {
+const getAllConversations = async () => {
   const response = await axios.get(
-    `${base_url}messages/conversations/${id}`,
+    `${base_url}messages/conversations/get`,
     config
   );
   return response.data;
 };
 
-const getAConversation = async (id, conversationId) => {
+const getAConversation = async (conversationId) => {
   const response = await axios.get(
-    `${base_url}messages/conversation/${id}/${conversationId}`,
+    `${base_url}messages/conversation/${conversationId}`,
     config
   );
   return response.data;

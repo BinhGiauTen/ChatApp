@@ -1,12 +1,8 @@
-
 import React, { useState } from "react";
-import Header from "../components/Header";
 import MessageView from "../components/MessageView";
 import FriendList from "../components/FriendList";
 import HomePageSlider from "../components/HomePageSlider";
 import MessageViewGroup from "../components/MessageViewGroup";
-import HeaderGroup from "../components/HeaderGroup";
-
 function ChatBox() {
   const [showMessageView, setShowMessageView] = useState(false);
   const [showMessageViewGroup, setShowMessageViewGroup] = useState(false);
@@ -21,18 +17,15 @@ function ChatBox() {
   };
   return (
     <div className="d-flex w-100">
-      <FriendList showMessageViewHandler={showMessageViewHandler} showMessageViewGroupHandler={showMessageViewGroupHandler}/>
+      <FriendList
+        showMessageViewHandler={showMessageViewHandler}
+        showMessageViewGroupHandler={showMessageViewGroupHandler}
+      />
       <div className="chat-on-board w-100">
-      {showMessageView ? (
-          <div>
-            <Header />
-            <MessageView />
-          </div>
+        {showMessageView ? (
+          <MessageView />
         ) : showMessageViewGroup ? (
-          <div>
-            <HeaderGroup />
-            <MessageViewGroup />
-          </div>
+          <MessageViewGroup />
         ) : (
           <div>
             <div className="content-slider">

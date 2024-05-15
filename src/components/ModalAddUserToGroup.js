@@ -43,7 +43,7 @@ function ModalAddUserToGroup() {
   console.log("SelectedFriend", selectedFriends);
 
   const handleAddUserToGroup = () =>{
-    dispatch(addToGroupChat({conversationId: conversationState?._id, participantsId: selectedFriends}))
+    dispatch(addToGroupChat({conversationId: conversationState?._id, participantId: selectedFriends}))
   }
 
   return (

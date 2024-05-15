@@ -2,10 +2,10 @@ import axios from "axios";
 import { base_url } from "../../utils/base_url";
 import { config } from "../../utils/axiosconfig";
 
-const addToGroupChat = async (conversationId, participantsId) => {
+const addToGroupChat = async (conversationId, participantId) => {
   const response = await axios.post(
     `${base_url}group/add`,
-    { conversationId, participantsId },
+    { conversationId, participantId },
     config
   );
   return response.data;

@@ -11,11 +11,11 @@ const initialState = {
 
 export const addToGroupChat = createAsyncThunk(
   "group/add-to-group-chat",
-  async ({ conversationId, participantsId }, thunkAPI) => {
+  async ({ conversationId, participantId }, thunkAPI) => {
     try {
       return await groupChatService.addToGroupChat(
         conversationId,
-        participantsId
+        participantId
       );
     } catch (error) {
       return thunkAPI.rejectWithValue(error);

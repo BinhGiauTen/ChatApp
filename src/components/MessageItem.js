@@ -20,7 +20,7 @@ function MessageItem({
       showMessageViewGroupHandler(item);
       dispatch(getGroupChatMessages(item?._id));
       dispatch(
-        getAConversation({ id: userState?._id, conversationId: item?._id })
+        getAConversation({conversationId: item?._id })
       );
     } else {
       showMessageViewHandler(item);
@@ -30,15 +30,15 @@ function MessageItem({
       )?._id;
       dispatch(getAllMessages(receiverId));
       dispatch(
-        getAConversation({ id: userState?._id, conversationId: item?._id })
+        getAConversation({ conversationId: item?._id })
       );
     }
   };
 
   return (
     <>
-      {data?.map((item, index) => {
-        return (
+      {data?.length > 0 ? (
+        data.map((item, index) => (
           <div
             key={index}
             className="message-item"
@@ -50,11 +50,12 @@ function MessageItem({
                   src={
                     item?.conversationImage
                       ? item?.conversationImage
-                      : item?.participants[item?.participants.length - 1]
+                      : item?.participants?.length &&
+                        item?.participants[item?.participants?.length - 1]
                           ?.avatar === "https://example.com/cute-pusheen.jpg"
                       ? "images/avatar-default.jpg"
-                      : item?.participants[item?.participants.length - 1]
-                          ?.avatar
+                      : item?.participants[item?.participants?.length - 1]
+                          ?.avatar || "images/avatar-default.jpg"
                   }
                   alt=""
                   className="avatar-img"
@@ -69,20 +70,26 @@ function MessageItem({
                       )?.username}
                 </div>
                 <div className="content-contact">
-                  {item?.messages[item?.messages.length - 1]?.message}
+                  {item?.messages?.length > 0
+                    ? item?.messages[item?.messages?.length - 1]?.message
+                    : ""}
                 </div>
               </div>
             </div>
             <div className="time-contact">
               {item?.createdAt
-                ? item?.createdAt
-                : new Date(
-                    item?.messages[item?.messages.length - 1]?.createdAt
-                  ).toLocaleString()}
+                ? new Date(item?.createdAt).toLocaleString()
+                : item?.messages?.length > 0
+                ? new Date(
+                    item?.messages[item?.messages?.length - 1]?.createdAt
+                  ).toLocaleString()
+                : ""}
             </div>
           </div>
-        );
-      })}
+        ))
+      ) : (
+        <div>No messages to display</div>
+      )}
     </>
   );
 }

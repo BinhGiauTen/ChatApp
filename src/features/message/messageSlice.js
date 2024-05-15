@@ -31,9 +31,9 @@ export const getAllMessages = createAsyncThunk(
 );
 export const getAllConversations = createAsyncThunk(
   "message/get-all-conversation",
-  async (id, thunkAPI) => {
+  async ( thunkAPI) => {
     try {
-      return await messageService.getAllConversations(id);
+      return await messageService.getAllConversations();
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
@@ -41,9 +41,9 @@ export const getAllConversations = createAsyncThunk(
 );
 export const getAConversation = createAsyncThunk(
   "message/get-a-conversation",
-  async ({ id, conversationId }, thunkAPI) => {
+  async ({ conversationId }, thunkAPI) => {
     try {
-      return await messageService.getAConversation(id, conversationId);
+      return await messageService.getAConversation(conversationId);
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }

@@ -18,7 +18,7 @@ function FriendList({ showMessageViewHandler, showMessageViewGroupHandler }) {
   const dispatch = useDispatch();
   const getConversationsFromDb = () => {
     if (userState?._id) {
-      dispatch(getAllConversations(userState._id));
+      dispatch(getAllConversations());
     }
   };
 
