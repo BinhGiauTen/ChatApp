@@ -16,6 +16,7 @@ import { IoSearchOutline } from "react-icons/io5";
 import { RiLiveLine } from "react-icons/ri";
 import { BsLayoutSidebarReverse } from "react-icons/bs";
 import ModalAddUserToGroup from "./ModalAddUserToGroup";
+import ChatInfo from "./ChatInfo";
 import { useDispatch, useSelector } from "react-redux";
 import { SocketContext } from "../context/SocketContext";
 import {
@@ -35,6 +36,7 @@ function MessageViewGroup() {
     (state) => state?.groupChat?.getGroupChatMessages
   );
   console.log("Message Group Chat:", messageGroupChatState);
+  
   // Lấy conversation
   const conversationState = useSelector(
     (state) => state?.message?.getAConversation
@@ -49,6 +51,14 @@ function MessageViewGroup() {
   const handleChangeInput = (e) => {
     setInputValue(e.target.value);
     setIsSending(e.target.value.trim() !== "");
+  };
+
+  // State to manage sidebar visibility
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+
+  // Toggle sidebar visibility
+  const toggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
   };
 
   useEffect(() => {
@@ -121,171 +131,183 @@ function MessageViewGroup() {
 
   return (
     <>
-      <header className="header">
-        <div className="d-flex align-items-center justify-content-center">
-          <div className="avatar-contact">
-            <img
-              src={
-                conversationState?.conversationImage
-                  ? conversationState?.conversationImage
-                  : ""
-              }
-              alt=""
-              className="avatar-img"
-            />
-          </div>
-          <div>
-            <div className="name-contact-header">
-              {conversationState?.name ? conversationState?.name : ""}
+      <div className={`wrapper-chat-box ${isSidebarVisible ? 'wrapper-chat-box-expanded' : ''}`}>
+        <header className="header">
+          <div className="d-flex align-items-center justify-content-center">
+            <div className="avatar-contact">
+              <img
+                src={
+                  conversationState?.conversationImage
+                    ? conversationState?.conversationImage
+                    : ""
+                }
+                alt=""
+                className="avatar-img"
+              />
+            </div>
+            <div>
+              <div className="name-contact-header">
+                {conversationState?.name ? conversationState?.name : ""}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="d-flex">
-          <div className="header-icon icon">
-            <ModalAddUserToGroup />
+          <div className="d-flex">
+            <div className="header-icon icon">
+              <ModalAddUserToGroup />
+            </div>
+            <div className="header-icon icon">
+              <IoSearchOutline className="header-icon-image" />
+            </div>
+            <div className="header-icon icon">
+              <RiLiveLine className="header-icon-image" />
+            </div>
+            <div className={`header-icon icon ${isSidebarVisible ? 'active' : ''}`} onClick={toggleSidebar}>
+              <BsLayoutSidebarReverse className="header-icon-image" />
+            </div>
           </div>
-          <div className="header-icon icon">
-            <IoSearchOutline className="header-icon-image" />
-          </div>
-          <div className="header-icon icon">
-            <RiLiveLine className="header-icon-image" />
-          </div>
-          <div className="header-icon icon">
-            <BsLayoutSidebarReverse className="header-icon-image" />
-          </div>
-        </div>
-      </header>
-      <div className="container-message">
-        <div className="message-view">
-          {messageGroupChatState?.map((item, index) => {
-            return (
-              <div key={index}>
-                <div
-                  className={`chat-item ${
-                    item?.senderId === userState?._id ? "chat-item-me" : ""
-                  }`}
-                >
-                  {item?.senderId !== userState._id && (
-                    <div className="chat-avatar">
-                      <img
-                        src={
-                          conversationState?.participants?.find(
-                            (participant) => participant?._id !== userState?._id
-                          )?.avatar === "https://example.com/cute-pusheen.jpg"
-                            ? "images/avatar-default.jpg"
-                            : conversationState?.participants?.find(
+        </header>
+        <div className="container-message">
+          <div>
+            <div className="message-view">
+              {messageGroupChatState?.map((item, index) => {
+                return (
+                  <div key={index}>
+                    <div
+                      className={`chat-item ${
+                        item?.senderId === userState?._id ? "chat-item-me" : ""
+                      }`}
+                    >
+                      {item?.senderId !== userState._id && (
+                        <div className="chat-avatar">
+                          <img
+                            src={
+                              conversationState?.participants?.find(
                                 (participant) =>
                                   participant?._id !== userState?._id
-                              )?.avatar
-                        }
-                        alt=""
-                        className="chat-avatar-img"
-                      />
-                    </div>
-                  )}
-                  <div className="chat-content">
-                    <div className="card">
-                      {item?.messageType === "image" && (
-                        <img
-                          src={item?.messageUrl}
-                          alt="Image"
-                          className="chat-image"
-                        />
-                      )}
-                      {item?.messageType === "file" && (
-                        <div className="file-info">
-                          <TiAttachment className="file-icon" />
-                          <a
-                            href={item?.messageUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {item?.message}
-                          </a>
+                              )?.avatar ===
+                              "https://example.com/cute-pusheen.jpg"
+                                ? "images/avatar-default.jpg"
+                                : conversationState?.participants?.find(
+                                    (participant) =>
+                                      participant?._id !== userState?._id
+                                  )?.avatar
+                            }
+                            alt=""
+                            className="chat-avatar-img"
+                          />
                         </div>
                       )}
-                      {item?.messageType === "text" && (
-                        <div className="chat-message">{item?.message}</div>
-                      )}
-                      <div className="time-chat-message">{item?.createdAt}</div>
-                      <div className="message-reaction">
-                        <AiOutlineLike />
+                      <div className="chat-content">
+                        <div className="card">
+                          {item?.messageType === "image" && (
+                            <img
+                              src={item?.messageUrl}
+                              alt="Image"
+                              className="chat-image"
+                            />
+                          )}
+                          {item?.messageType === "file" && (
+                            <div className="file-info">
+                              <TiAttachment className="file-icon" />
+                              <a
+                                href={item?.messageUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {item?.message}
+                              </a>
+                            </div>
+                          )}
+                          {item?.messageType === "text" && (
+                            <div className="chat-message">{item?.message}</div>
+                          )}
+                          <div className="time-chat-message">
+                            {item?.createdAt}
+                          </div>
+                          <div className="message-reaction">
+                            <AiOutlineLike />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
+                );
+              })}
+            </div>
+            <div className="toolbar">
+              <div className="toolbar-icon icon">
+                <LuSticker className="header-icon-image" />
+              </div>
+              <input
+                type="file"
+                ref={imageInputRef}
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleSendImage}
+              />
+              <div onClick={handleChooseImage} className="toolbar-icon icon">
+                <CiImageOn className="header-icon-image" />
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleSendFile}
+              />
+              <div onClick={handleChooseFile} className="toolbar-icon icon">
+                <TiAttachment className="header-icon-image" />
+              </div>
+              <div className="toolbar-icon icon">
+                <BiScreenshot className="header-icon-image" />
+              </div>
+              <div className="toolbar-icon icon">
+                <TiBusinessCard className="header-icon-image" />
+              </div>
+              <div className="toolbar-icon icon">
+                <CiAlarmOn className="header-icon-image" />
+              </div>
+              <div className="toolbar-icon icon">
+                <MdAssignmentTurnedIn className="header-icon-image" />
+              </div>
+              <div className="toolbar-icon icon">
+                <MdFormatShapes className="header-icon-image" />
+              </div>
+              <div className="toolbar-icon icon">
+                <FaExclamation className="header-icon-image" />
+              </div>
+            </div>
+            <div className="chat-input-container d-flex align-items-center ">
+              <input
+                placeholder={`Nhập @, tin nhắn gửi đến ${
+                  conversationState?.participants?.find(
+                    (participant) => participant?._id !== userState?._id
+                  )?.username
+                }`}
+                type="text"
+                className="chat-input"
+                value={inputValue}
+                onChange={handleChangeInput}
+              />
+              <div className="d-flex align-items-center justify-content-center">
+                <div className="chat-input-icon icon">
+                  <FaRegFaceGrin className="header-icon-image" />
+                </div>
+                <div
+                  className="chat-input-icon icon"
+                  onClick={handleSendMessage}
+                >
+                  {isSending ? (
+                    <IoSend className="header-icon-image" />
+                  ) : (
+                    <SlLike className="header-icon-image" />
+                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
-        <div className="toolbar">
-          <div className="toolbar-icon icon">
-            <LuSticker className="header-icon-image" />
-          </div>
-          <input
-            type="file"
-            ref={imageInputRef}
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleSendImage}
-          />
-          <div onClick={handleChooseImage} className="toolbar-icon icon">
-            <CiImageOn className="header-icon-image" />
-          </div>
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleSendFile}
-          />
-          <div onClick={handleChooseFile} className="toolbar-icon icon">
-            <TiAttachment className="header-icon-image" />
-          </div>
-          <div className="toolbar-icon icon">
-            <BiScreenshot className="header-icon-image" />
-          </div>
-          <div className="toolbar-icon icon">
-            <TiBusinessCard className="header-icon-image" />
-          </div>
-          <div className="toolbar-icon icon">
-            <CiAlarmOn className="header-icon-image" />
-          </div>
-          <div className="toolbar-icon icon">
-            <MdAssignmentTurnedIn className="header-icon-image" />
-          </div>
-          <div className="toolbar-icon icon">
-            <MdFormatShapes className="header-icon-image" />
-          </div>
-          <div className="toolbar-icon icon">
-            <FaExclamation className="header-icon-image" />
-          </div>
-        </div>
-        <div className="chat-input-container d-flex align-items-center ">
-          <input
-            placeholder={`Nhập @, tin nhắn gửi đến ${
-              conversationState?.participants?.find(
-                (participant) => participant?._id !== userState?._id
-              )?.username
-            }`}
-            type="text"
-            className="chat-input"
-            value={inputValue}
-            onChange={handleChangeInput}
-          />
-          <div className="d-flex align-items-center justify-content-center">
-            <div className="chat-input-icon icon">
-              <FaRegFaceGrin className="header-icon-image" />
-            </div>
-            <div className="chat-input-icon icon" onClick={handleSendMessage}>
-              {isSending ? (
-                <IoSend className="header-icon-image" />
-              ) : (
-                <SlLike className="header-icon-image" />
-              )}
             </div>
           </div>
         </div>
       </div>
+      {isSidebarVisible && <ChatInfo />}
     </>
   );
 }

@@ -96,6 +96,13 @@ const shareGroupChatMessage = async (conversationId, messageId) => {
   );
   return response.data;
 };
+const getParticipantsFromGroup = async (conversationId) => {
+  const response = await axios.get(
+    `${base_url}group/get/${conversationId}`,
+    config
+  );
+  return response.data;
+};
 
 const groupChatService = {
   addToGroupChat,
@@ -108,5 +115,6 @@ const groupChatService = {
   removeFromGroupChat,
   closeGroupChat,
   shareGroupChatMessage,
+  getParticipantsFromGroup
 };
 export default groupChatService;

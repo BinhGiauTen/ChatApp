@@ -88,6 +88,17 @@ export const sendGroupChatFiles = createAsyncThunk(
   }
 );
 
+export const getParticipantsFromGroup = createAsyncThunk(
+  "group/get-participants",
+  async (conversationId, thunkAPI) => {
+    try {
+      return await groupChatService.getParticipantsFromGroup(conversationId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const groupChatSlice = createSlice({
   name: "messages",
   initialState,
@@ -179,6 +190,21 @@ export const groupChatSlice = createSlice({
         state.sendGroupChatFiles = action.payload;
       })
       .addCase(sendGroupChatFiles.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(getParticipantsFromGroup.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getParticipantsFromGroup.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.participants = action.payload;
+      })
+      .addCase(getParticipantsFromGroup.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
