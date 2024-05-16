@@ -9,6 +9,7 @@ import { MdOutlineGroup } from "react-icons/md";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 import { IoIosMore } from "react-icons/io";
 import { getParticipantsFromGroup } from "../features/groupChat/groupChatSlice";
+import ModalAddUserToGroup from "./ModalAddUserToGroup";
 
 function ChatInfo() {
   const dispatch = useDispatch();
@@ -23,9 +24,14 @@ function ChatInfo() {
   const handleUndoChatInfo = () => {
     setStateOption("default");
   };
+
+  const [showModal, setShowModal] = useState(false);
+  const handleShow = () => setShowModal(true);
+  const handleClose = () => setShowModal(false);
+
   useEffect(() => {
     dispatch(getParticipantsFromGroup(conversationState?._id));
-  }, []);
+  }, [conversationState?._id]);
 
   const participants = useSelector((state) => state?.groupChat?.participants);
 
@@ -76,7 +82,7 @@ function ChatInfo() {
               <div className="header-info-tool-button">
                 <div className="header-info-icon">
                   <div className="header-info-tool-icon">
-                    <AiOutlineUsergroupAdd className="header-info-tool-icon-image" />
+                    <AiOutlineUsergroupAdd className="header-info-tool-icon-image" onClick={handleShow}/>
                   </div>
                 </div>
                 <div className="header-info-tool-label">Thêm thành viên</div>
@@ -112,7 +118,7 @@ function ChatInfo() {
             <div>Thành viên</div>
           </div>
           <div className="add-members">
-            <div className="add-members-button">
+            <div className="add-members-button" onClick={handleShow}>
               <AiOutlineUsergroupAdd />
               Thêm thành viên
             </div>
@@ -141,6 +147,7 @@ function ChatInfo() {
           })}
         </div>
       )}
+      <ModalAddUserToGroup show={showModal} handleClose={handleClose} />
     </div>
   );
 }

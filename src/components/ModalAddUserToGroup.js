@@ -7,10 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getFriendsList } from "../features/friend/friendSlice";
 import { addToGroupChat } from "../features/groupChat/groupChatSlice";
 
-function ModalAddUserToGroup() {
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+function ModalAddUserToGroup({show, handleClose}) {
 
   const userState = useSelector(
     (state) => state?.user?.user?.user || state?.user?.user
@@ -48,10 +45,6 @@ function ModalAddUserToGroup() {
 
   return (
     <>
-      <div className="add-icon" onClick={handleShow}>
-        <AiOutlineUsergroupAdd className="add-icon-img" />
-      </div>
-
       <Modal show={show} onHide={handleClose} className="modal-add-friend">
         <Modal.Header closeButton>
           <Modal.Title className="label-add-contact">

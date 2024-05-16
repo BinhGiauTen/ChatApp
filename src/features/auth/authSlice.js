@@ -52,9 +52,9 @@ export const verifyRegister = createAsyncThunk(
   }
 );
 
-export const logout = createAsyncThunk("auth/logout", async (thunkAPI) => {
+export const logout = createAsyncThunk("auth/logout", async (id,thunkAPI) => {
   try {
-    return await authService.logout();
+    return await authService.logout(id);
   } catch (error) {
     return thunkAPI.rejectWithValue(error);
   }
@@ -102,14 +102,14 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.user = action.payload;
-        state.message = "Login successful"
+        state.message = "Login successful";
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
         state.user = null;
-        state.message = "Login fail"
+        state.message = "Login fail";
       })
       .addCase(logout.pending, (state) => {
         state.isLoading = true;
@@ -118,14 +118,14 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.user = null;
-        state.message = "Logout successful"
+        state.message = "Logout successful";
       })
       .addCase(logout.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
         state.user = null;
-        state.message = "Logout fail"
+        state.message = "Logout fail";
       });
   },
 });

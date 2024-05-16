@@ -9,6 +9,9 @@ import { useNavigate } from "react-router-dom";
 function ModalLogout({ handleCloseSettingModal, handleCloseModalProfile }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const userState = useSelector((state) => state?.user?.user?.user || state?.user?.user);
+
   const [show, setShow] = useState(false);
   const handleClose = () => {
     setShow(false);
@@ -19,7 +22,7 @@ function ModalLogout({ handleCloseSettingModal, handleCloseModalProfile }) {
     setShow(true);
   };
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logout(userState?._id));
     setShow(false);
   };
   const { message } = useSelector((state) => state.auth);

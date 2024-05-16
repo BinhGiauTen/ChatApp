@@ -13,7 +13,7 @@ const verifyRegister = async (user) => {
 };
 
 const login = async (user) => {
-  const response = await axios.post(`${base_url}auth/login`,user);
+  const response = await axios.post(`${base_url}auth/login`, user);
   if (response.data) {
     sessionStorage.setItem("User", JSON.stringify(response.data));
   }
@@ -23,8 +23,8 @@ const login = async (user) => {
   return response.data;
 };
 
-const logout = async () => {
-  const response = await axios.post(`${base_url}auth/register`, config);
+const logout = async (id) => {
+  const response = await axios.get(`${base_url}auth/logout/${id}`, config);
   return response.data;
 };
 

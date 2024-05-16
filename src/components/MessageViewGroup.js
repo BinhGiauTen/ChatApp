@@ -15,6 +15,7 @@ import { SlLike } from "react-icons/sl";
 import { IoSearchOutline } from "react-icons/io5";
 import { RiLiveLine } from "react-icons/ri";
 import { BsLayoutSidebarReverse } from "react-icons/bs";
+import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import ModalAddUserToGroup from "./ModalAddUserToGroup";
 import ChatInfo from "./ChatInfo";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,6 +29,11 @@ import {
 
 function MessageViewGroup() {
   const { socket } = useContext(SocketContext);
+
+  const [showModal, setShowModal] = useState(false);
+  const handleShow = () => setShowModal(true);
+  const handleClose = () => setShowModal(false);
+
   const dispatch = useDispatch();
   const userState = useSelector(
     (state) => state?.user?.user?.user || state?.user?.user
@@ -36,7 +42,7 @@ function MessageViewGroup() {
     (state) => state?.groupChat?.getGroupChatMessages
   );
   console.log("Message Group Chat:", messageGroupChatState);
-  
+
   // Lấy conversation
   const conversationState = useSelector(
     (state) => state?.message?.getAConversation
@@ -153,7 +159,7 @@ function MessageViewGroup() {
           </div>
           <div className="d-flex">
             <div className="header-icon icon">
-              <ModalAddUserToGroup />
+              <AiOutlineUsergroupAdd className="header-icon-image" onClick={handleShow}/>
             </div>
             <div className="header-icon icon">
               <IoSearchOutline className="header-icon-image" />
@@ -308,6 +314,7 @@ function MessageViewGroup() {
         </div>
       </div>
       {isSidebarVisible && <ChatInfo />}
+      <ModalAddUserToGroup show={showModal} handleClose={handleClose} />
     </>
   );
 }

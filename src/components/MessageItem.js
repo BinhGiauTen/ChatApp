@@ -88,7 +88,7 @@ function MessageItem({
           </div>
         ))
       ) : (
-        <div>No messages to display</div>
+        <div className="ps-3">Chưa có tin nhắn</div>
       )}
     </>
   );
