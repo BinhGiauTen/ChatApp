@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteMessage } from "../features/message/messageSlice";
+import { deleteMessage, getAllMessages } from "../features/message/messageSlice";
 
 function ModalMessageOptions({ isOpen, onClose, message, position }) {
   const dispatch = useDispatch();
@@ -13,8 +13,9 @@ function ModalMessageOptions({ isOpen, onClose, message, position }) {
   const receiverId = conversationState?.participants?.find(
     (participant) => participant?._id !== userState?._id
   )?._id;
-  const handleDelete = () => {
-    dispatch(deleteMessage({id: userState?._id, participantId: receiverId , messageId: message?._id}));
+  const handleDelete = async () => {
+    await dispatch(deleteMessage({participantId: receiverId , messageId: message?._id}));
+    dispatch(getAllMessages(receiverId));
     onClose();
   };
 
@@ -23,9 +24,9 @@ function ModalMessageOptions({ isOpen, onClose, message, position }) {
   return (
     <div className={`modall ${isOpen ? "show" : ""}`} style={{ top: `${position?.y}px`, left: `${modalLeft}px`}}>
       <div className="modall-content" >
-        <button onClick={handleDelete}>Xóa tin nhắn</button>
-        <button>Thu hồi tin nhắn</button>
-        <button onClick={onClose}>Đóng</button>
+        <div className="modall-content-item">Chuyển tiếp tin nhắn</div>
+        <div className="modall-content-item red" onClick={handleDelete}>Thu hồi tin nhắn</div>
+        <div className="modall-content-item" onClick={onClose}>Đóng</div>
       </div>
     </div>
   );

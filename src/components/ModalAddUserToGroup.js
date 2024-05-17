@@ -1,47 +1,57 @@
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { IoSearchOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { getFriendsList } from "../features/friend/friendSlice";
-import { addToGroupChat } from "../features/groupChat/groupChatSlice";
+import { addToGroupChat, getParticipantsFromGroup } from "../features/groupChat/groupChatSlice";
 
-function ModalAddUserToGroup({show, handleClose}) {
-
+function ModalAddUserToGroup({ show, handleClose }) {
   const userState = useSelector(
     (state) => state?.user?.user?.user || state?.user?.user
   );
   const dispatch = useDispatch();
+
   useEffect(() => {
-    dispatch(getFriendsList(userState?._id));
-  }, [userState?._id]);
+    if (userState?._id) {
+      dispatch(getFriendsList(userState._id));
+    }
+  }, [userState?._id, dispatch]);
 
   const friendList = useSelector((state) => state?.friend?.getFriendsList);
   const conversationState = useSelector(
     (state) => state?.message?.getAConversation
   );
-  console.log("conversationState in Modal add user", conversationState);
+
   const [selectedFriends, setSelectedFriends] = useState([]);
+  const [newSelectedFriends, setNewSelectedFriends] = useState([]);
+
   useEffect(() => {
-    // Update selectedFriends based on conversation participants when conversationState updates
-    const participantIds = conversationState?.participants?.map((participant) => participant._id) || [];
+    const participantIds =
+      conversationState?.participants?.map((participant) => participant._id) ||
+      [];
     setSelectedFriends(participantIds);
   }, [conversationState]);
 
   const handleFriendSelection = (event, friendId) => {
     if (event.target.checked) {
-      setSelectedFriends((prev) => [...prev, friendId]);
+      setNewSelectedFriends((prev) => [...prev, friendId]);
     } else {
-      setSelectedFriends((prev) => prev.filter((id) => id !== friendId));
+      setNewSelectedFriends((prev) => prev.filter((id) => id !== friendId));
     }
   };
+  console.log("New selected:", newSelectedFriends);
 
-  console.log("SelectedFriend", selectedFriends);
-
-  const handleAddUserToGroup = () =>{
-    dispatch(addToGroupChat({conversationId: conversationState?._id, participantId: selectedFriends}))
-  }
+  const handleAddUserToGroup = async () => {
+    await dispatch(
+      addToGroupChat({
+        conversationId: conversationState?._id,
+        participantsId: newSelectedFriends,
+      })
+    );
+    dispatch(getParticipantsFromGroup(conversationState?._id));
+    handleClose();
+  };
 
   return (
     <>
@@ -70,7 +80,9 @@ function ModalAddUserToGroup({show, handleClose}) {
           </div>
           <div className="to-add-group-label">Danh sách bạn bè</div>
           {friendList?.map((item, index) => {
-            const isChecked = selectedFriends.includes(item._id);
+            const isChecked = selectedFriends.includes(item._id) || newSelectedFriends.includes(item._id);
+            const isDisabled = selectedFriends.includes(item._id);
+
             return (
               <div className="to-add-group" key={index}>
                 <div className="contact-to-add-group">
@@ -78,6 +90,8 @@ function ModalAddUserToGroup({show, handleClose}) {
                     type="checkbox"
                     checked={isChecked}
                     onChange={(e) => handleFriendSelection(e, item?._id)}
+                    disabled={isDisabled}
+                    className={isDisabled ? "disabled-checkbox" : ""}
                   />
                   <div className="chat-avatar avatar-to-add-group">
                     <img
@@ -102,7 +116,9 @@ function ModalAddUserToGroup({show, handleClose}) {
           <Button variant="secondary" onClick={handleClose}>
             Hủy
           </Button>
-          <Button variant="primary" onClick={handleAddUserToGroup}>Xác nhận</Button>
+          <Button variant="primary" onClick={handleAddUserToGroup}>
+            Xác nhận
+          </Button>
         </Modal.Footer>
       </Modal>
     </>

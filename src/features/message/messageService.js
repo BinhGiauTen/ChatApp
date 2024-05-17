@@ -32,9 +32,19 @@ const getAConversation = async (conversationId) => {
   return response.data;
 };
 
-const deleteMessage = async (id, participantId, messageId) => {
+const deleteMessage = async (participantId, messageId) => {
   const response = await axios.post(
-    `${base_url}messages/delete/${id}/${participantId}/${messageId}`,
+    `${base_url}messages/revoke/${participantId}`,
+    { messageId },
+    config
+  );
+  return response.data;
+};
+
+const shareMessage = async (receiverId, messageId) => {
+  const response = await axios.post(
+    `${base_url}messages/share/${receiverId}`,
+    { messageId },
     config
   );
   return response.data;
@@ -70,5 +80,6 @@ const messageService = {
   deleteMessage,
   sendImage,
   sendFile,
+  shareMessage
 };
 export default messageService;

@@ -11,11 +11,11 @@ const initialState = {
 
 export const addToGroupChat = createAsyncThunk(
   "group/add-to-group-chat",
-  async ({ conversationId, participantId }, thunkAPI) => {
+  async ({ conversationId, participantsId }, thunkAPI) => {
     try {
       return await groupChatService.addToGroupChat(
         conversationId,
-        participantId
+        participantsId
       );
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
@@ -93,6 +93,38 @@ export const getParticipantsFromGroup = createAsyncThunk(
   async (conversationId, thunkAPI) => {
     try {
       return await groupChatService.getParticipantsFromGroup(conversationId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const addAminPermission = createAsyncThunk(
+  "group/add-admin",
+  async ({ conversationId, participantId }, thunkAPI) => {
+    try {
+      return await groupChatService.addAminPermission(conversationId, participantId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+export const removeFromGroupChat = createAsyncThunk(
+  "group/remove-user",
+  async ({ conversationId, participantId }, thunkAPI) => {
+    try {
+      return await groupChatService.removeFromGroupChat(conversationId, participantId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const closeGroupChat = createAsyncThunk(
+  "group/close",
+  async ({ conversationId}, thunkAPI) => {
+    try {
+      return await groupChatService.closeGroupChat(conversationId);
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
@@ -205,6 +237,21 @@ export const groupChatSlice = createSlice({
         state.participants = action.payload;
       })
       .addCase(getParticipantsFromGroup.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(closeGroupChat.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(closeGroupChat.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.closedGroup = action.payload;
+      })
+      .addCase(closeGroupChat.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;

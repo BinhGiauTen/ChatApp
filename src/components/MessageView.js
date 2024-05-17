@@ -18,7 +18,7 @@ import { RiLiveLine } from "react-icons/ri";
 import { BsLayoutSidebarReverse } from "react-icons/bs";
 import { CiShoppingTag } from "react-icons/ci";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllMessages, sendFile, sendImage, sendMessage } from "../features/message/messageSlice";
+import { deleteMessage, getAllMessages, sendFile, sendImage, sendMessage } from "../features/message/messageSlice";
 import ModalMessageOptions from "./ModalMessageOptions";
 import { SocketContext } from "../context/SocketContext";
 
@@ -58,6 +58,11 @@ function MessageView() {
         dispatch(getAllMessages(newMessage?.senderId));
       }
     });
+
+    // Lắng nghe sự kiện thu hồi tin nhắn
+    socket?.on("delMessage", (deletedMessage) => {
+      dispatch(getAllMessages(deletedMessage?.senderId));
+  });
 
     // return () => {
     //   // Ngắt kết nối socket khi component unmount

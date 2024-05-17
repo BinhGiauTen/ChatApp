@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { LuPencilLine } from "react-icons/lu";
 import { GoBell } from "react-icons/go";
@@ -8,13 +8,29 @@ import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { MdOutlineGroup } from "react-icons/md";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 import { IoIosMore } from "react-icons/io";
-import { getParticipantsFromGroup } from "../features/groupChat/groupChatSlice";
+import { IoIosLogOut } from "react-icons/io";
+import { Dropdown, DropdownButton } from "react-bootstrap";
+import {
+  addAminPermission,
+  closeGroupChat,
+  getParticipantsFromGroup,
+  removeFromGroupChat,
+} from "../features/groupChat/groupChatSlice";
 import ModalAddUserToGroup from "./ModalAddUserToGroup";
+import {
+  getAConversation,
+  getAllConversations,
+} from "../features/message/messageSlice";
+import { SocketContext } from "../context/SocketContext";
 
 function ChatInfo() {
+  const { socket } = useContext(SocketContext);
   const dispatch = useDispatch();
   const conversationState = useSelector(
     (state) => state?.message?.getAConversation
+  );
+  const userState = useSelector(
+    (state) => state?.user?.user?.user || state?.user?.user
   );
 
   const [stateOption, setStateOption] = useState("default");
@@ -35,6 +51,69 @@ function ChatInfo() {
 
   const participants = useSelector((state) => state?.groupChat?.participants);
 
+  const isAdmin = conversationState?.admin?.includes(userState?._id);
+
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const handleDropdownToggle = (index) => {
+    setActiveDropdown(activeDropdown === index ? null : index);
+  };
+
+  const handleMakeAdmin = async (userId) => {
+    await dispatch(
+      addAminPermission({
+        conversationId: conversationState?._id,
+        participantId: userId,
+      })
+    );
+    dispatch(getAConversation({ conversationId: conversationState?._id }));
+  };
+
+  const handleRemoveUser = async (userId) => {
+    await dispatch(
+      removeFromGroupChat({
+        conversationId: conversationState?._id,
+        participantId: userId,
+      })
+    );
+    dispatch(getParticipantsFromGroup(conversationState?._id));
+  };
+
+  const handleCloseGroup = async () => {
+    await dispatch(
+      closeGroupChat({
+        conversationId: conversationState?._id,
+      })
+    );
+    dispatch(getAllConversations());
+  };
+
+  const handleOutGroup = async () => {
+    // await dispatch(
+    //   removeFromGroupChat({
+    //     conversationId: conversationState?._id,
+    //     participantId: userState?._id,
+    //   })
+    // );
+    // dispatch(getAllConversations());
+  };
+
+  // useEffect(() => {
+  //   socket?.on("updateGroupChat", (updatedConversation) => {
+  //     console.log("updateGroupChat:", updatedConversation);
+  //     if (updatedConversation._id === conversationState._id) {
+  //       dispatch(getParticipantsFromGroup(conversationState._id));
+  //       dispatch(getAConversation({ conversationId: conversationState._id }));
+  //     }
+  //   });
+
+  //   socket?.on("newConversation", (newConversation) => {
+  //     console.log("newConversation:", newConversation);
+  //     if (newConversation._id === conversationState._id) {
+  //       dispatch(getParticipantsFromGroup(conversationState._id));
+  //       dispatch(getAConversation({ conversationId: conversationState._id }));
+  //     }
+  //   });
+  // }, []);
   return (
     <div className="chat-info">
       {stateOption === "default" && (
@@ -82,7 +161,10 @@ function ChatInfo() {
               <div className="header-info-tool-button">
                 <div className="header-info-icon">
                   <div className="header-info-tool-icon">
-                    <AiOutlineUsergroupAdd className="header-info-tool-icon-image" onClick={handleShow}/>
+                    <AiOutlineUsergroupAdd
+                      className="header-info-tool-icon-image"
+                      onClick={handleShow}
+                    />
                   </div>
                 </div>
                 <div className="header-info-tool-label">Thêm thành viên</div>
@@ -103,6 +185,23 @@ function ChatInfo() {
               <MdOutlineGroup className="group-members-icon-image" />
               <div onClick={handleOpenChatInfo}>
                 {participants?.length} thành viên
+              </div>
+            </div>
+          </div>
+
+          <div className="group-members">
+            {isAdmin && (
+              <div className="group-members-content">
+                <IoIosLogOut className="group-members-icon-image red" />
+                <div onClick={handleCloseGroup} className="red">
+                  Giải tán nhóm
+                </div>
+              </div>
+            )}
+            <div className="group-members-content">
+              <IoIosLogOut className="group-members-icon-image red" />
+              <div onClick={handleOutGroup} className="red">
+                Rời nhóm
               </div>
             </div>
           </div>
@@ -141,7 +240,29 @@ function ChatInfo() {
                     className="chat-avatar-img"
                   />
                 </div>
-                <div className="name-contact-to-add-group">{item?.username}</div>
+                <div className="name-contact-to-add-group">
+                  {item?._id === userState?._id ? "Bạn" : item?.username}
+                  {conversationState?.admin?.includes(item?._id) && (
+                    <div className="label-main">Trưởng nhóm</div>
+                  )}
+                </div>
+                {isAdmin && (
+                  <div className="icon icon-more icon-more-chat-info">
+                    <DropdownButton
+                      id={`dropdown-${index}`}
+                      title={<IoIosMore className="icon-more-image" />}
+                      onToggle={() => handleDropdownToggle(index)}
+                      show={activeDropdown === index}
+                    >
+                      <Dropdown.Item onClick={() => handleMakeAdmin(item._id)}>
+                        Thêm phó nhóm
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleRemoveUser(item._id)}>
+                        Xóa khỏi nhóm
+                      </Dropdown.Item>
+                    </DropdownButton>
+                  </div>
+                )}
               </div>
             );
           })}

@@ -7,6 +7,7 @@ import { IoSearchOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { getFriendsList } from "../features/friend/friendSlice";
 import { createGroupChat } from "../features/groupChat/groupChatSlice";
+import { getAllConversations } from "../features/message/messageSlice";
 
 function ModalAddGroup() {
   const [show, setShow] = useState(false);
@@ -36,8 +37,10 @@ function ModalAddGroup() {
     setGroupName(event.target.value);
   };
 
-  const handleCreateGroupChat = () =>{
-    dispatch(createGroupChat({participantsId: selectedFriends, conversationName: groupName}));
+  const handleCreateGroupChat = async () =>{
+    await dispatch(createGroupChat({participantsId: selectedFriends, conversationName: groupName}));
+    handleClose();
+    dispatch(getAllConversations());
   }
 
   return (

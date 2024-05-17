@@ -2,10 +2,10 @@ import axios from "axios";
 import { base_url } from "../../utils/base_url";
 import { config } from "../../utils/axiosconfig";
 
-const addToGroupChat = async (conversationId, participantId) => {
+const addToGroupChat = async (conversationId, participantsId) => {
   const response = await axios.post(
     `${base_url}group/add`,
-    { conversationId, participantId },
+    { conversationId, participantsId },
     config
   );
   return response.data;
@@ -60,7 +60,7 @@ const deleteGroupChatMessage = async (conversationId, messageId) => {
 
 const removeFromGroupChat = async (conversationId, participantId) => {
   const response = await axios.post(
-    `${base_url}group/messages/delete`,
+    `${base_url}group/delete`,
     { conversationId, participantId },
     config
   );
@@ -81,7 +81,7 @@ const sendGroupChatFiles = async (conversationId, file) => {
 
 const closeGroupChat = async (conversationId) => {
   const response = await axios.post(
-    `${base_url}group/messages/close`,
+    `${base_url}group/close`,
     { conversationId },
     config
   );
@@ -103,6 +103,14 @@ const getParticipantsFromGroup = async (conversationId) => {
   );
   return response.data;
 };
+const addAminPermission = async (conversationId,participantId) => {
+  const response = await axios.post(
+    `${base_url}group/admin/grant`,
+    { conversationId, participantId },
+    config
+  );
+  return response.data;
+};
 
 const groupChatService = {
   addToGroupChat,
@@ -115,6 +123,7 @@ const groupChatService = {
   removeFromGroupChat,
   closeGroupChat,
   shareGroupChatMessage,
-  getParticipantsFromGroup
+  getParticipantsFromGroup,
+  addAminPermission
 };
 export default groupChatService;

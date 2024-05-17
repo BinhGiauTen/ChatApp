@@ -38,6 +38,8 @@ function FriendList({ showMessageViewHandler, showMessageViewGroupHandler }) {
   }, [userState?._id]);     // Chỉ gọi lại khi userState._id thay đổi
 
   const conversationState = useSelector((state) => state?.message?.getAllConversations);
+  const filteredConversations = conversationState?.filter(conversation => conversation?.status !== 2) || "";
+
   return (
     <div className="contain">
       <ContactSearch />
@@ -70,12 +72,12 @@ function FriendList({ showMessageViewHandler, showMessageViewGroupHandler }) {
       </div>
       {selectedItem === "all" && (
         <>
-          <MessageItem showMessageViewHandler={showMessageViewHandler} showMessageViewGroupHandler={showMessageViewGroupHandler} data={conversationState ? conversationState : []}/>
+          <MessageItem showMessageViewHandler={showMessageViewHandler} showMessageViewGroupHandler={showMessageViewGroupHandler} data={filteredConversations ? filteredConversations : []}/>
         </>
       )}
       {selectedItem === "unread" && (
         <>
-          <MessageItem showMessageViewHandler={showMessageViewHandler} showMessageViewGroupHandler={showMessageViewGroupHandler} data={conversationState ? conversationState : []}/>
+          <MessageItem showMessageViewHandler={showMessageViewHandler} showMessageViewGroupHandler={showMessageViewGroupHandler} data={filteredConversations ? filteredConversations : []}/>
         </>
       )}
     </div>

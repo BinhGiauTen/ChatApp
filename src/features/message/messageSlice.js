@@ -74,9 +74,20 @@ export const sendFile = createAsyncThunk(
 
 export const deleteMessage = createAsyncThunk(
   "message/delete-message",
-  async ({ id, participantId, messageId }, thunkAPI) => {
+  async ({ participantId, messageId }, thunkAPI) => {
     try {
-      return await messageService.deleteMessage(id, participantId, messageId);
+      return await messageService.deleteMessage(participantId, messageId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const shareMessage = createAsyncThunk(
+  "message/share-message",
+  async ({ receiverId, messageId }, thunkAPI) => {
+    try {
+      return await messageService.shareMessage(receiverId, messageId);
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
@@ -191,6 +202,21 @@ export const messageSlice = createSlice({
         state.sendFile = action.payload;
       })
       .addCase(sendFile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(shareMessage.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(shareMessage.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.sharedMessage = action.payload;
+      })
+      .addCase(shareMessage.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
