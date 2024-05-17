@@ -75,7 +75,8 @@ function ChatInfo() {
         participantId: userId,
       })
     );
-    dispatch(getParticipantsFromGroup(conversationState?._id));
+    await dispatch(getParticipantsFromGroup(conversationState?._id));
+    dispatch(getAConversation({ conversationId: conversationState?._id }));
   };
 
   const handleCloseGroup = async () => {
@@ -97,23 +98,25 @@ function ChatInfo() {
     // dispatch(getAllConversations());
   };
 
-  // useEffect(() => {
-  //   socket?.on("updateGroupChat", (updatedConversation) => {
-  //     console.log("updateGroupChat:", updatedConversation);
-  //     if (updatedConversation._id === conversationState._id) {
-  //       dispatch(getParticipantsFromGroup(conversationState._id));
-  //       dispatch(getAConversation({ conversationId: conversationState._id }));
-  //     }
-  //   });
+  console.log("Conversation State in ChatInfo:", conversationState);
+  useEffect(() => {
+    socket?.on("updateGroupChat", (conversation) => {
+      console.log("updateGroupChat:", conversation);
+      if (conversation._id === conversationState._id) {
+        dispatch(getParticipantsFromGroup(conversation._id));
+        dispatch(getAConversation({ conversationId: conversationState._id }));
+      }
+    });
 
-  //   socket?.on("newConversation", (newConversation) => {
-  //     console.log("newConversation:", newConversation);
-  //     if (newConversation._id === conversationState._id) {
-  //       dispatch(getParticipantsFromGroup(conversationState._id));
-  //       dispatch(getAConversation({ conversationId: conversationState._id }));
-  //     }
-  //   });
-  // }, []);
+    socket?.on("newConversation", (conversation) => {
+      console.log("newConversation:", conversation);
+      if (conversation._id === conversationState._id) {
+        dispatch(getParticipantsFromGroup(conversationState._id));
+        dispatch(getAConversation({ conversationId: conversationState._id }));
+      }
+    });
+  }, [socket]);
+
   return (
     <div className="chat-info">
       {stateOption === "default" && (

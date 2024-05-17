@@ -1,10 +1,12 @@
-import React from "react";
+import React, {useContext, useEffect} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAConversation,
   getAllMessages,
 } from "../features/message/messageSlice";
 import { getGroupChatMessages } from "../features/groupChat/groupChatSlice";
+import TimeFormatter from "./TimeFormatter";
+import { SocketContext } from "../context/SocketContext";
 
 function MessageItem({
   showMessageViewHandler,
@@ -12,6 +14,8 @@ function MessageItem({
   data,
 }) {
   const dispatch = useDispatch();
+  const { socket } = useContext(SocketContext);
+
   const userState = useSelector(
     (state) => state?.user?.user?.user || state?.user?.user
   );
@@ -19,9 +23,7 @@ function MessageItem({
     if (item?.name) {
       showMessageViewGroupHandler(item);
       dispatch(getGroupChatMessages(item?._id));
-      dispatch(
-        getAConversation({conversationId: item?._id })
-      );
+      dispatch(getAConversation({ conversationId: item?._id }));
     } else {
       showMessageViewHandler(item);
       // Lấy tin nhắn của người nhận chat có _id khác với userState._id
@@ -29,11 +31,16 @@ function MessageItem({
         (participant) => participant?._id !== userState?._id
       )?._id;
       dispatch(getAllMessages(receiverId));
-      dispatch(
-        getAConversation({ conversationId: item?._id })
-      );
+      dispatch(getAConversation({ conversationId: item?._id }));
     }
   };
+
+  useEffect(() => {
+    socket?.on("newConversation", (newConversation) => {
+      console.log("Newmessage:", newConversation);
+      // dispatch(getGroupChatMessages(newMessage?.conversationId));
+    });
+  }, []);
 
   return (
     <>
@@ -70,20 +77,16 @@ function MessageItem({
                       )?.username}
                 </div>
                 <div className="content-contact">
-                  {item?.messages?.length > 0
-                    ? item?.messages[item?.messages?.length - 1]?.message
-                    : ""}
+                  {item?.lastMessage?.message ? item?.lastMessage?.message : ""}
                 </div>
               </div>
             </div>
             <div className="time-contact">
-              {item?.createdAt
-                ? new Date(item?.createdAt).toLocaleString()
-                : item?.messages?.length > 0
-                ? new Date(
-                    item?.messages[item?.messages?.length - 1]?.createdAt
-                  ).toLocaleString()
-                : ""}
+              {item?.lastMessage?.createdAt ? (
+                <TimeFormatter timestamp={item?.lastMessage?.createdAt} />
+              ) : (
+                ""
+              )}
             </div>
           </div>
         ))

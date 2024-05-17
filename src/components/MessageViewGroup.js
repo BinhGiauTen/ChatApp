@@ -26,6 +26,8 @@ import {
   sendGroupChatImages,
   sendGroupChatMessage,
 } from "../features/groupChat/groupChatSlice";
+import TimeFormatter from "./TimeFormatter";
+
 
 function MessageViewGroup() {
   const { socket } = useContext(SocketContext);
@@ -41,17 +43,13 @@ function MessageViewGroup() {
   const messageGroupChatState = useSelector(
     (state) => state?.groupChat?.getGroupChatMessages
   );
-  console.log("Message Group Chat:", messageGroupChatState);
 
+  console.log("Message Group Chat:", messageGroupChatState);
   // Lấy conversation
   const conversationState = useSelector(
     (state) => state?.message?.getAConversation
   );
-  // Lấy id người nhận
-  // const receiverId = conversationState?.participants?.find(
-  //   (participant) => participant?._id !== userState?._id
-  // )?._id;
-  // console.log("receiverId", receiverId);
+
   const [inputValue, setInputValue] = useState("");
   const [isSending, setIsSending] = useState(false);
   const handleChangeInput = (e) => {
@@ -69,15 +67,20 @@ function MessageViewGroup() {
 
   useEffect(() => {
     // Lắng nghe tin nhắn từ server
+    socket.emit("join", conversationState?._id);
     socket?.on("newMessage", (newMessage) => {
-      if (Array.isArray(newMessage)) {
-        newMessage.forEach((message) => {
-          dispatch(getGroupChatMessages(conversationState?._id));
-        });
-      } else {
-        dispatch(getGroupChatMessages(conversationState?._id));
-      }
+      console.log("Newmessage:", newMessage);
+      // if (Array.isArray(newMessage)) {
+      //   newMessage.forEach(() => {
+      //     dispatch(getGroupChatMessages(conversationState?._id));
+      //   });
+      // } else {
+      // console.log("COnversationState:", newMessage?.conversationId);
+      dispatch(getGroupChatMessages(newMessage?.conversationId));
+      // }
     });
+
+    // console.log("Conversation State 2:", conversationState);
 
     // return () => {
     //   // Ngắt kết nối socket khi component unmount
@@ -137,7 +140,11 @@ function MessageViewGroup() {
 
   return (
     <>
-      <div className={`wrapper-chat-box ${isSidebarVisible ? 'wrapper-chat-box-expanded' : ''}`}>
+      <div
+        className={`wrapper-chat-box ${
+          isSidebarVisible ? "wrapper-chat-box-expanded" : ""
+        }`}
+      >
         <header className="header">
           <div className="d-flex align-items-center justify-content-center">
             <div className="avatar-contact">
@@ -159,7 +166,10 @@ function MessageViewGroup() {
           </div>
           <div className="d-flex">
             <div className="header-icon icon">
-              <AiOutlineUsergroupAdd className="header-icon-image" onClick={handleShow}/>
+              <AiOutlineUsergroupAdd
+                className="header-icon-image"
+                onClick={handleShow}
+              />
             </div>
             <div className="header-icon icon">
               <IoSearchOutline className="header-icon-image" />
@@ -167,7 +177,10 @@ function MessageViewGroup() {
             <div className="header-icon icon">
               <RiLiveLine className="header-icon-image" />
             </div>
-            <div className={`header-icon icon ${isSidebarVisible ? 'active' : ''}`} onClick={toggleSidebar}>
+            <div
+              className={`header-icon icon ${isSidebarVisible ? "active" : ""}`}
+              onClick={toggleSidebar}
+            >
               <BsLayoutSidebarReverse className="header-icon-image" />
             </div>
           </div>
@@ -228,7 +241,7 @@ function MessageViewGroup() {
                             <div className="chat-message">{item?.message}</div>
                           )}
                           <div className="time-chat-message">
-                            {item?.createdAt}
+                            <TimeFormatter timestamp={item?.createdAt} />
                           </div>
                           <div className="message-reaction">
                             <AiOutlineLike />
@@ -284,11 +297,7 @@ function MessageViewGroup() {
             </div>
             <div className="chat-input-container d-flex align-items-center ">
               <input
-                placeholder={`Nhập @, tin nhắn gửi đến ${
-                  conversationState?.participants?.find(
-                    (participant) => participant?._id !== userState?._id
-                  )?.username
-                }`}
+                placeholder={`Nhập @, tin nhắn gửi đến ${conversationState?.name}`}
                 type="text"
                 className="chat-input"
                 value={inputValue}

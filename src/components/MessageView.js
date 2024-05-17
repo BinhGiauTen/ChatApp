@@ -18,9 +18,10 @@ import { RiLiveLine } from "react-icons/ri";
 import { BsLayoutSidebarReverse } from "react-icons/bs";
 import { CiShoppingTag } from "react-icons/ci";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteMessage, getAllMessages, sendFile, sendImage, sendMessage } from "../features/message/messageSlice";
+import {  getAllMessages, sendFile, sendImage, sendMessage } from "../features/message/messageSlice";
 import ModalMessageOptions from "./ModalMessageOptions";
 import { SocketContext } from "../context/SocketContext";
+import TimeFormatter from "./TimeFormatter";
 
 function MessageView() {
   const { socket } = useContext(SocketContext);
@@ -50,6 +51,7 @@ function MessageView() {
   useEffect(() => {
     // Lắng nghe tin nhắn từ server
     socket?.on("newMessage", (newMessage) => {
+      console.log("New message:", newMessage)
       if (Array.isArray(newMessage)) {
         newMessage.forEach((message) => {
           dispatch(getAllMessages(message?.senderId));
@@ -246,7 +248,7 @@ function MessageView() {
                     {item?.messageType === "text" && (
                       <div className="chat-message">{item?.message}</div>
                     )}
-                    <div className="time-chat-message">{item?.createdAt}</div>
+                    <div className="time-chat-message"><TimeFormatter timestamp={item?.createdAt} /></div>
                     <div className="message-reaction">
                       <AiOutlineLike />
                     </div>

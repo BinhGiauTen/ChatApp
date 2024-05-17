@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { BsChatTextFill } from "react-icons/bs";
 import { MdOutlinePermContactCalendar, MdOutlineCloud } from "react-icons/md";
@@ -9,9 +9,13 @@ import ModalSetting from "./ModalSetting";
 import ModalProfile from "./ModalProfile";
 import { useDispatch, useSelector } from "react-redux";
 import { getaUser } from "../features/user/userSlice";
+import { SocketContext } from "../context/SocketContext";
+
 
 
 function MainTab() {
+  const { socket } = useContext(SocketContext);
+
   const [selectedItem, setSelectedItem] = useState("message");
   const handleItemClick = (item) => {
     setSelectedItem(item);
@@ -34,6 +38,13 @@ function MainTab() {
   const handleCloseModalProfile = () => {
     setShowModalProfile(false);
   };
+
+  useEffect(() => {
+    socket?.on("newConversation", (newConversation) => {
+      console.log("Newmessage:", newConversation);
+      // dispatch(getGroupChatMessages(newMessage?.conversationId));
+    });
+  }, []);
 
   const userState = useSelector((state) => state?.user?.user?.user || state?.user?.user)
   const avatarSrc = userState?.avatar === "https://example.com/cute-pusheen.jpg" ? "images/avatar-default.jpg" : userState?.avatar;

@@ -47,7 +47,6 @@ function Contact() {
   const friendRequests = useSelector(
     (state) => state?.friend?.getAllFriendsRequest
   );
-  console.log("Friend request", friendRequests);
 
   const handleAcceptFriendRequest = async (requesterId) => {
     await dispatch(
@@ -59,12 +58,10 @@ function Contact() {
   };
 
   const friendsList = useSelector((state) => state?.friend?.getFriendsList);
-  console.log("Friend list: ", friendsList);
 
   const listSented = useSelector(
     (state) => state?.friend?.getAllFriendRequestSented
   );
-  console.log("list sented", listSented);
 
   const handleCancelFriendRequest = async (recipentId) => {
     await dispatch(
@@ -77,12 +74,22 @@ function Contact() {
 
   useEffect(() => {
     socket?.on("acceptedFriendRequest", (requester) => {
-      console.log("Requester:", requester)
       dispatch(getFriendsList(userState?._id));
     });
 
     // return () => socket.off("delMessage");
   }, [socket]);
+
+  const conversationState = useSelector(
+    (state) => state?.message?.getAllConversations
+  );
+
+  // Filter out group conversations with status = 1
+  const filteredGroupConversations =
+    conversationState?.filter(
+      (conversation) =>
+        conversation.conversationType === "Group" && conversation.status === 1
+    ) || [];
 
   return (
     <div className="contact">
@@ -182,7 +189,13 @@ function Contact() {
               <span>Danh sách nhóm</span>
             </div>
             <div className="card-list-wrapper">
-              <div className="title">Nhóm (2)</div>
+              <div className="title">
+                Nhóm (
+                {filteredGroupConversations
+                  ? filteredGroupConversations?.length
+                  : 0}
+                )
+              </div>
               <div className="card-contact">
                 <div className="contact-filter">
                   <div className="group-search">
@@ -204,68 +217,26 @@ function Contact() {
                     <IoIosArrowDown />
                   </div>
                 </div>
-                <div className="group-item">
-                  <div className="avatar-container">
-                    <img
-                      src="https://s120-ava-talk.zadn.vn/4/4/a/2/1/120/9207b2750ba3206d04791ae71ad00a1e.jpg"
-                      alt=""
-                      className="user-img"
-                    />
-                    <img
-                      src="https://s120-ava-talk.zadn.vn/4/4/a/2/1/120/9207b2750ba3206d04791ae71ad00a1e.jpg"
-                      alt=""
-                      className="user-img"
-                    />
-                    <img
-                      src="https://s120-ava-talk.zadn.vn/4/4/a/2/1/120/9207b2750ba3206d04791ae71ad00a1e.jpg"
-                      alt=""
-                      className="user-img"
-                    />
-                    <img
-                      src="https://s120-ava-talk.zadn.vn/4/4/a/2/1/120/9207b2750ba3206d04791ae71ad00a1e.jpg"
-                      alt=""
-                      className="user-img"
-                    />
+                {filteredGroupConversations?.map((item, index) => (
+                  <div className="group-item" key={index}>
+                    <div className="chat-avatar avatar-to-add-group">
+                      <img
+                        src={item?.conversationImage}
+                        alt=""
+                        className="chat-avatar-img"
+                      />
+                    </div>
+                    <div className="namegroup-quantity">
+                      <div className="namegroup">{item?.name}</div>
+                      <div className="quantity">
+                        {item?.participants?.length} thành viên
+                      </div>
+                    </div>
+                    <div className="icon icon-more">
+                      <IoIosMore className="icon-more-img" />
+                    </div>
                   </div>
-                  <div className="namegroup-quantity">
-                    <div className="namegroup">KTTKPM_T2_4_6_16B_HK2_23_24</div>
-                    <div className="quantity">82 thành viên</div>
-                  </div>
-                  <div className="icon icon-more">
-                    <IoIosMore className="icon-more-img" />
-                  </div>
-                </div>
-                <div className="group-item">
-                  <div className="avatar-container">
-                    <img
-                      src="https://s120-ava-talk.zadn.vn/4/4/a/2/1/120/9207b2750ba3206d04791ae71ad00a1e.jpg"
-                      alt=""
-                      className="user-img"
-                    />
-                    <img
-                      src="https://s120-ava-talk.zadn.vn/4/4/a/2/1/120/9207b2750ba3206d04791ae71ad00a1e.jpg"
-                      alt=""
-                      className="user-img"
-                    />
-                    <img
-                      src="https://s120-ava-talk.zadn.vn/4/4/a/2/1/120/9207b2750ba3206d04791ae71ad00a1e.jpg"
-                      alt=""
-                      className="user-img"
-                    />
-                    <img
-                      src="https://s120-ava-talk.zadn.vn/4/4/a/2/1/120/9207b2750ba3206d04791ae71ad00a1e.jpg"
-                      alt=""
-                      className="user-img"
-                    />
-                  </div>
-                  <div className="namegroup-quantity">
-                    <div className="namegroup">KTTKPM_T2_4_6_16B_HK2_23_24</div>
-                    <div className="quantity">82 thành viên</div>
-                  </div>
-                  <div className="icon icon-more">
-                    <IoIosMore className="icon-more-img" />
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>

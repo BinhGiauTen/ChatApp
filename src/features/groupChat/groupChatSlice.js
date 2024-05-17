@@ -132,7 +132,7 @@ export const closeGroupChat = createAsyncThunk(
 );
 
 export const groupChatSlice = createSlice({
-  name: "messages",
+  name: "groupChats",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
