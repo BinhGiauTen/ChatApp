@@ -7,15 +7,12 @@ import { IoBagHandle } from "react-icons/io5";
 import { IoMdSettings } from "react-icons/io";
 import ModalSetting from "./ModalSetting";
 import ModalProfile from "./ModalProfile";
-import { useDispatch, useSelector } from "react-redux";
-import { getaUser } from "../features/user/userSlice";
+import {useSelector, useDispatch } from "react-redux";
 import { SocketContext } from "../context/SocketContext";
-
-
+import { getAllConversations } from "../features/message/messageSlice";
 
 function MainTab() {
   const { socket } = useContext(SocketContext);
-
   const [selectedItem, setSelectedItem] = useState("message");
   const handleItemClick = (item) => {
     setSelectedItem(item);
@@ -38,16 +35,22 @@ function MainTab() {
   const handleCloseModalProfile = () => {
     setShowModalProfile(false);
   };
-
-  useEffect(() => {
-    socket?.on("newConversation", (newConversation) => {
-      console.log("Newmessage:", newConversation);
-      // dispatch(getGroupChatMessages(newMessage?.conversationId));
-    });
-  }, []);
-
   const userState = useSelector((state) => state?.user?.user?.user || state?.user?.user)
   const avatarSrc = userState?.avatar === "https://example.com/cute-pusheen.jpg" ? "images/avatar-default.jpg" : userState?.avatar;
+
+  const dispatch = useDispatch();
+
+  console.log("Main tab is render");
+  useEffect(()=>{
+    socket?.on("newConversation", (newConversation) => {
+      console.log("New conversation after send messgage:", newConversation);
+      dispatch(getAllConversations(userState?._id))
+    });
+
+    socket?.on("newMessage", (newMessage) => {
+      console.log("New message in group:", newMessage);
+    });
+  })
   return (
     <>
       <div className="main-tab">

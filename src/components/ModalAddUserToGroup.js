@@ -40,7 +40,6 @@ function ModalAddUserToGroup({ show, handleClose }) {
       setNewSelectedFriends((prev) => prev.filter((id) => id !== friendId));
     }
   };
-  console.log("New selected:", newSelectedFriends);
 
   const handleAddUserToGroup = async () => {
     await dispatch(

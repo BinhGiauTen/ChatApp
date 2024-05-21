@@ -14,6 +14,7 @@ import { IoSend } from "react-icons/io5";
 import { SlLike } from "react-icons/sl";
 import { IoSearchOutline } from "react-icons/io5";
 import { RiLiveLine } from "react-icons/ri";
+import { FaFile } from "react-icons/fa";
 import { BsLayoutSidebarReverse } from "react-icons/bs";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import ModalAddUserToGroup from "./ModalAddUserToGroup";
@@ -46,6 +47,7 @@ function MessageViewGroup() {
 
   console.log("Message Group Chat:", messageGroupChatState);
   // Lấy conversation
+  
   const conversationState = useSelector(
     (state) => state?.message?.getAConversation
   );
@@ -65,28 +67,9 @@ function MessageViewGroup() {
     setIsSidebarVisible(!isSidebarVisible);
   };
 
-  useEffect(() => {
-    // Lắng nghe tin nhắn từ server
-    socket.emit("join", conversationState?._id);
-    socket?.on("newMessage", (newMessage) => {
-      console.log("Newmessage:", newMessage);
-      // if (Array.isArray(newMessage)) {
-      //   newMessage.forEach(() => {
-      //     dispatch(getGroupChatMessages(conversationState?._id));
-      //   });
-      // } else {
-      // console.log("COnversationState:", newMessage?.conversationId);
-      dispatch(getGroupChatMessages(newMessage?.conversationId));
-      // }
-    });
+  console.log("View group chat is render")
 
-    // console.log("Conversation State 2:", conversationState);
-
-    // return () => {
-    //   // Ngắt kết nối socket khi component unmount
-    //   socket?.disconnect();
-    // };
-  }, []);
+  
 
   const handleSendMessage = async () => {
     if (inputValue.trim() !== "") {
@@ -101,6 +84,12 @@ function MessageViewGroup() {
       dispatch(getGroupChatMessages(conversationState?._id));
     }
   };
+
+  useEffect(() => {
+    socket?.on("notification", () => {
+      dispatch(getGroupChatMessages(conversationState?._id));
+    });
+  }, [conversationState]);
 
   // Send image
   const imageInputRef = useRef(null);
@@ -227,7 +216,7 @@ function MessageViewGroup() {
                           )}
                           {item?.messageType === "file" && (
                             <div className="file-info">
-                              <TiAttachment className="file-icon" />
+                              <FaFile className="file-icon" />
                               <a
                                 href={item?.messageUrl}
                                 target="_blank"

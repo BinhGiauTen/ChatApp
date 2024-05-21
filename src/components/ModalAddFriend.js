@@ -11,8 +11,7 @@ import { LuPencilLine } from "react-icons/lu";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 import { toast } from "react-toastify";
 import {
-  createFriendRequest,
-  resetState,
+  createFriendRequest
 } from "../features/friend/friendSlice";
 import { getAllConversations, sendMessage } from "../features/message/messageSlice";
 
@@ -66,27 +65,19 @@ function ModalAddFriend() {
       toast.error("Số điện thoại này không hợp lệ hoặc chưa được đăng ký !!!");
     }
   }, [findUserByPhone]);
-  useEffect(() => {
-    if (createdFriendRequest) {
-      if (createdFriendRequest === "Request was already sent") {
-        toast.info("Bạn đã gửi lời mời kết bạn đến người này rồi !!!");
-      } else {
-        toast.success("Đã gửi lời mời kết bạn thành công !!!");
-      }
-    }
-  }, [createdFriendRequest]);
 
   const handleBackToDefault = () => {
     setModalType("search");
   };
 
   // Dùng await để chắc chắn createFriendRequest được gọi xong mới gọi resetState
-  const handleCreateFriendRequest = async () => {
-    await dispatch(
+  const handleCreateFriendRequest = () => {
+    dispatch(
       createFriendRequest({ id: userState?._id, recipentId: firstUser?._id })
+      
     );
+    toast.success("Đã gửi lời mời kết bạn thành công !!!");
     handleClose();
-    dispatch(resetState());
   };
 
   const [isFriend, setIsFriend] = useState(false); // State để kiểm tra xem là bạn bè hay không
@@ -118,22 +109,20 @@ function ModalAddFriend() {
   const handleChangeInput = (e) => {
     setInputValue(e.target.value);
   };
-  const handleSendMessage = (user) => {
+  const handleSendMessage = async (user) => {
     if (inputValue.trim() !== "") {
-      dispatch(
+      await dispatch(
         sendMessage({
           receiverId: user?._id,
           message: inputValue,
         })
       );
-      setInputValue("");
+      handleClose();
+      dispatch(getAllConversations(userState?._id))
+
     }
   };
 
-  useEffect(() => {
-    dispatch(getaUser(userState?._id));
-    dispatch(getAllConversations(userState?._id));
-  }, []);
   return (
     <>
       <div className="add-icon" onClick={handleShow}>

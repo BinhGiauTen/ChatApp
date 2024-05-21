@@ -70,9 +70,8 @@ const removeFromGroupChat = async (conversationId, participantId) => {
 const sendGroupChatFiles = async (conversationId, file) => {
   const formData = new FormData();
   formData.append("files[]", file);
-  formData.append("conversationId", conversationId);
   const response = await axios.post(
-    `${base_url}group/messages/send/files`,
+    `${base_url}group/messages/send/files/${conversationId}`,
     formData,
     config
   );
