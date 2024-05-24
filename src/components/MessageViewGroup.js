@@ -28,7 +28,7 @@ import {
   sendGroupChatMessage,
 } from "../features/groupChat/groupChatSlice";
 import TimeFormatter from "./TimeFormatter";
-
+import ModalMessageGroupOptions from "./ModalMessageGroupOptions";
 
 function MessageViewGroup() {
   const { socket } = useContext(SocketContext);
@@ -47,7 +47,7 @@ function MessageViewGroup() {
 
   console.log("Message Group Chat:", messageGroupChatState);
   // Lấy conversation
-  
+
   const conversationState = useSelector(
     (state) => state?.message?.getAConversation
   );
@@ -67,9 +67,7 @@ function MessageViewGroup() {
     setIsSidebarVisible(!isSidebarVisible);
   };
 
-  console.log("View group chat is render")
-
-  
+  console.log("View group chat is render");
 
   const handleSendMessage = async () => {
     if (inputValue.trim() !== "") {
@@ -127,6 +125,29 @@ function MessageViewGroup() {
     }
   };
 
+  // Delete message group
+  const [currentClickMessage, setCurrentClickMessage] = useState(null);
+  const [showModalOption, setShowModalOption] = useState(false);
+  const [closeModalOption, setCloseModalOption] = useState(true);
+  const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
+
+  const handleRightClick = (event, item) => {
+    event.preventDefault(); // Ngăn không cho menu chuột phải mặc định hiển thị
+    const position = { x: event.clientX, y: event.clientY };
+    console.log("Right click message", item);
+    console.log("Position:", position);
+
+    // Hiển thị modal với các tùy chọn và truyền item hiện tại vào để biết được đối tượng cần xử lý
+    setShowModalOption(true);
+    setCurrentClickMessage(item);
+    setModalPosition(position); // Lưu vị trí hiển thị modal
+  };
+
+  const handleCloseModal = () => {
+    setShowModalOption(false);
+    setCurrentClickMessage(null);
+  };
+
   return (
     <>
       <div
@@ -176,10 +197,10 @@ function MessageViewGroup() {
         </header>
         <div className="container-message">
           <div>
-            <div className="message-view">
+            <div className="message-view" >
               {messageGroupChatState?.map((item, index) => {
                 return (
-                  <div key={index}>
+                  <div key={index} onContextMenu={(e) => handleRightClick(e, item)}>
                     <div
                       className={`chat-item ${
                         item?.senderId === userState?._id ? "chat-item-me" : ""
@@ -232,12 +253,16 @@ function MessageViewGroup() {
                           <div className="time-chat-message">
                             <TimeFormatter timestamp={item?.createdAt} />
                           </div>
-                          <div className="message-reaction">
-                            <AiOutlineLike />
-                          </div>
+                          
                         </div>
                       </div>
                     </div>
+                    <ModalMessageGroupOptions
+                      isOpen={showModalOption}
+                      onClose={handleCloseModal}
+                      message={currentClickMessage}
+                      position={modalPosition}
+                    />
                   </div>
                 );
               })}

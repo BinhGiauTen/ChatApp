@@ -16,6 +16,7 @@ import {
   getParticipantsFromGroup,
   leaveGroupChat,
   removeFromGroupChat,
+  revokeAminPermission,
 } from "../features/groupChat/groupChatSlice";
 import ModalAddUserToGroup from "./ModalAddUserToGroup";
 import ModalConfirm from "./ModalConfirm";
@@ -107,6 +108,16 @@ function ChatInfo() {
     window.location.reload();
   };
 
+  const handleRevokeAdmin = async (userId) => {
+    await dispatch(
+      revokeAminPermission({
+        conversationId: conversationState?._id,
+        participantId: userId,
+      })
+    );
+    dispatch(getAConversation({ conversationId: conversationState?._id }));
+  };
+
   const handleConfirmAction = (action) => {
     setConfirmAction(() => action);
     handleShowConfirm();
@@ -118,6 +129,16 @@ function ChatInfo() {
     }
     handleCloseConfirm();
   };
+
+  useEffect(()=>{
+    socket?.on("updateGroupChat", (updateGroupChat) => {
+      console.log("Update group chat:", updateGroupChat);
+      dispatch(getParticipantsFromGroup(conversationState?._id));
+      dispatch(getAConversation({ conversationId: conversationState?._id }));
+    });
+
+
+  })
   return (
     <div className="chat-info">
       {stateOption === "default" && (
@@ -197,14 +218,20 @@ function ChatInfo() {
             {isAdmin && (
               <div className="group-members-content">
                 <IoIosLogOut className="group-members-icon-image red" />
-                <div onClick={() => handleConfirmAction(handleCloseGroup)} className="red">
+                <div
+                  onClick={() => handleConfirmAction(handleCloseGroup)}
+                  className="red"
+                >
                   Giải tán nhóm
                 </div>
               </div>
             )}
             <div className="group-members-content">
               <IoIosLogOut className="group-members-icon-image red" />
-              <div onClick={() => handleConfirmAction(handleOutGroup)} className="red">
+              <div
+                onClick={() => handleConfirmAction(handleOutGroup)}
+                className="red"
+              >
                 Rời nhóm
               </div>
             </div>
@@ -231,6 +258,8 @@ function ChatInfo() {
             <IoIosMore className="icon-more-image" />
           </div>
           {participants?.map((item, index) => {
+            const isCurrentUser = item?._id === userState?._id;
+            const isAdminUser = conversationState?.admin?.includes(item?._id);
             return (
               <div className="members-info" key={index}>
                 <div className="chat-avatar avatar-to-add-group">
@@ -245,12 +274,12 @@ function ChatInfo() {
                   />
                 </div>
                 <div className="name-contact-to-add-group">
-                  {item?._id === userState?._id ? "Bạn" : item?.username}
-                  {conversationState?.admin?.includes(item?._id) && (
-                    <div className="label-main">Trưởng nhóm</div>
+                  {isCurrentUser ? "Bạn" : item?.username}
+                  {isAdminUser && (
+                    <div className="label-main">Quản trị viên</div>
                   )}
                 </div>
-                {isAdmin && (
+                {isAdmin && !isCurrentUser && (
                   <div className="icon icon-more icon-more-chat-info">
                     <DropdownButton
                       id={`dropdown-${index}`}
@@ -258,12 +287,26 @@ function ChatInfo() {
                       onToggle={() => handleDropdownToggle(index)}
                       show={activeDropdown === index}
                     >
-                      <Dropdown.Item onClick={() => handleMakeAdmin(item._id)}>
-                        Thêm phó nhóm
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => handleRemoveUser(item._id)}>
-                        Xóa khỏi nhóm
-                      </Dropdown.Item>
+                      {isAdminUser ? (
+                        <Dropdown.Item
+                          onClick={() => handleRevokeAdmin(item._id)}
+                        >
+                          Gỡ quản trị viên
+                        </Dropdown.Item>
+                      ) : (
+                        <>
+                          <Dropdown.Item
+                            onClick={() => handleMakeAdmin(item._id)}
+                          >
+                            Thêm quản trị viên
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            onClick={() => handleRemoveUser(item._id)}
+                          >
+                            Xóa khỏi nhóm
+                          </Dropdown.Item>
+                        </>
+                      )}
                     </DropdownButton>
                   </div>
                 )}
@@ -272,7 +315,10 @@ function ChatInfo() {
           })}
         </div>
       )}
-      <ModalAddUserToGroup show={showAddUserModal} handleClose={handleCloseAddUser} />
+      <ModalAddUserToGroup
+        show={showAddUserModal}
+        handleClose={handleCloseAddUser}
+      />
       <ModalConfirm
         show={showConfirmModal}
         handleClose={handleCloseConfirm}

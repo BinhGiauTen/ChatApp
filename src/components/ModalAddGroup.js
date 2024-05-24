@@ -38,10 +38,14 @@ function ModalAddGroup() {
   };
 
   const handleCreateGroupChat = async () =>{
-    await dispatch(createGroupChat({participantsId: selectedFriends, conversationName: groupName}));
-    handleClose();
-    dispatch(getAllConversations());
+    if (selectedFriends.length >= 2) { // Check if at least 3 members are selected
+      await dispatch(createGroupChat({ participantsId: selectedFriends, conversationName: groupName }));
+      handleClose();
+      dispatch(getAllConversations());
+    }
   }
+
+  const isCreateButtonDisabled = groupName.trim() === "" || selectedFriends.length < 2;
 
   return (
     <>
@@ -115,7 +119,7 @@ function ModalAddGroup() {
           <Button variant="secondary" onClick={handleClose}>
             Hủy
           </Button>
-          <Button variant="primary" onClick={handleCreateGroupChat}>
+          <Button variant="primary" onClick={handleCreateGroupChat} disabled={isCreateButtonDisabled}>
             Tạo nhóm
           </Button>
         </Modal.Footer>

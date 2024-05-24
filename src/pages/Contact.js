@@ -76,6 +76,10 @@ function Contact() {
     socket?.on("acceptedFriendRequest", (requester) => {
       dispatch(getFriendsList(userState?._id));
     });
+    // socket?.on("newFriendRequest", (requester) => {
+    //   console.log("New friend Request", requester)
+    //   dispatch(getAllFriendsRequest(userState._id));
+    // });
 
     // return () => socket.off("delMessage");
   }, [socket]);

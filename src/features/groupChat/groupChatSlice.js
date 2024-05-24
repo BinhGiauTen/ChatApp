@@ -141,6 +141,40 @@ export const leaveGroupChat = createAsyncThunk(
   }
 );
 
+export const deleteGroupChatMessage = createAsyncThunk(
+  "group/delete-message",
+  async ({ conversationId, messageId}, thunkAPI) => {
+    try {
+      return await groupChatService.deleteGroupChatMessage(conversationId, messageId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const revokeGroupChatMessage = createAsyncThunk(
+  "group/revoke-message",
+  async ({ conversationId, messageId}, thunkAPI) => {
+    try {
+      return await groupChatService.revokeGroupChatMessage(conversationId, messageId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const revokeAminPermission = createAsyncThunk(
+  "group/revoke-admin",
+  async ({ conversationId, participantId }, thunkAPI) => {
+    try {
+      return await groupChatService.revokeAminPermission(conversationId, participantId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+
 export const groupChatSlice = createSlice({
   name: "groupChats",
   initialState,
@@ -277,6 +311,51 @@ export const groupChatSlice = createSlice({
         state.leavedGroup = action.payload;
       })
       .addCase(leaveGroupChat.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(deleteGroupChatMessage.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteGroupChatMessage.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.deletedGroupChatMessage = action.payload;
+      })
+      .addCase(deleteGroupChatMessage.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(revokeGroupChatMessage.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(revokeGroupChatMessage.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.revokedGroupChatMessage = action.payload;
+      })
+      .addCase(revokeGroupChatMessage.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(revokeAminPermission.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(revokeAminPermission.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.revokedAmin = action.payload;
+      })
+      .addCase(revokeAminPermission.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;

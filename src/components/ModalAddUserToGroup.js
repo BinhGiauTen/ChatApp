@@ -115,7 +115,7 @@ function ModalAddUserToGroup({ show, handleClose }) {
           <Button variant="secondary" onClick={handleClose}>
             Hủy
           </Button>
-          <Button variant="primary" onClick={handleAddUserToGroup}>
+          <Button variant="primary" onClick={handleAddUserToGroup} disabled={newSelectedFriends.length === 0}>
             Xác nhận
           </Button>
         </Modal.Footer>

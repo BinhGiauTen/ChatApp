@@ -38,6 +38,7 @@ function Login() {
     if (message === "Login successful") {
       toast.success("Đăng nhập thành công !!!");
       navigate("/");
+      window.location.reload();
     } else if (message === "Login fail") {
       toast.error("Số điện thoại hoặc mật khẩu không hợp lệ !!!");
     }

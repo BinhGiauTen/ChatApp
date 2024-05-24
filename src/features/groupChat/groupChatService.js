@@ -58,6 +58,15 @@ const deleteGroupChatMessage = async (conversationId, messageId) => {
   return response.data;
 };
 
+const revokeGroupChatMessage = async (conversationId, messageId) => {
+  const response = await axios.post(
+    `${base_url}group/messages/revoke`,
+    { conversationId, messageId },
+    config
+  );
+  return response.data;
+};
+
 const removeFromGroupChat = async (conversationId, participantId) => {
   const response = await axios.post(
     `${base_url}group/delete`,
@@ -120,6 +129,15 @@ const leaveGroupChat = async (conversationId) => {
   return response.data;
 };
 
+const revokeAminPermission = async (conversationId,participantId) => {
+  const response = await axios.post(
+    `${base_url}group/admin/revoke`,
+    { conversationId, participantId },
+    config
+  );
+  return response.data;
+};
+
 const groupChatService = {
   addToGroupChat,
   createGroupChat,
@@ -133,6 +151,8 @@ const groupChatService = {
   shareGroupChatMessage,
   getParticipantsFromGroup,
   addAminPermission,
-  leaveGroupChat
+  leaveGroupChat,
+  revokeGroupChatMessage,
+  revokeAminPermission
 };
 export default groupChatService;

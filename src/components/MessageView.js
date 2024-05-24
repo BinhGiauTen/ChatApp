@@ -73,6 +73,7 @@ function MessageView() {
     });
   }, []);
 
+  // Send message
   const handleSendMessage = async () => {
     if (inputValue.trim() !== "") {
       await dispatch(
@@ -256,9 +257,7 @@ function MessageView() {
                       <div className="time-chat-message">
                         <TimeFormatter timestamp={item?.createdAt} />
                       </div>
-                      <div className="message-reaction">
-                        <AiOutlineLike />
-                      </div>
+                      
                     </div>
                   </div>
                 </div>
