@@ -111,6 +111,15 @@ const addAminPermission = async (conversationId,participantId) => {
   return response.data;
 };
 
+const leaveGroupChat = async (conversationId) => {
+  const response = await axios.post(
+    `${base_url}group/leave`,
+    { conversationId},
+    config
+  );
+  return response.data;
+};
+
 const groupChatService = {
   addToGroupChat,
   createGroupChat,
@@ -123,6 +132,7 @@ const groupChatService = {
   closeGroupChat,
   shareGroupChatMessage,
   getParticipantsFromGroup,
-  addAminPermission
+  addAminPermission,
+  leaveGroupChat
 };
 export default groupChatService;

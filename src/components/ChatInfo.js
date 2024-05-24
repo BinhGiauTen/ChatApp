@@ -14,9 +14,11 @@ import {
   addAminPermission,
   closeGroupChat,
   getParticipantsFromGroup,
+  leaveGroupChat,
   removeFromGroupChat,
 } from "../features/groupChat/groupChatSlice";
 import ModalAddUserToGroup from "./ModalAddUserToGroup";
+import ModalConfirm from "./ModalConfirm";
 import {
   getAConversation,
   getAllConversations,
@@ -41,9 +43,15 @@ function ChatInfo() {
     setStateOption("default");
   };
 
-  const [showModal, setShowModal] = useState(false);
-  const handleShow = () => setShowModal(true);
-  const handleClose = () => setShowModal(false);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+
+  const handleShowAddUser = () => setShowAddUserModal(true);
+  const handleCloseAddUser = () => setShowAddUserModal(false);
+
+  const handleShowConfirm = () => setShowConfirmModal(true);
+  const handleCloseConfirm = () => setShowConfirmModal(false);
 
   useEffect(() => {
     dispatch(getParticipantsFromGroup(conversationState?._id));
@@ -86,37 +94,30 @@ function ChatInfo() {
       })
     );
     dispatch(getAllConversations());
+    window.location.reload();
   };
 
   const handleOutGroup = async () => {
-    // await dispatch(
-    //   removeFromGroupChat({
-    //     conversationId: conversationState?._id,
-    //     participantId: userState?._id,
-    //   })
-    // );
-    // dispatch(getAllConversations());
+    await dispatch(
+      leaveGroupChat({
+        conversationId: conversationState?._id,
+      })
+    );
+    dispatch(getAllConversations());
+    window.location.reload();
   };
 
-  console.log("Conversation State in ChatInfo:", conversationState);
-  useEffect(() => {
-    socket?.on("updateGroupChat", (conversation) => {
-      console.log("updateGroupChat:", conversation);
-      if (conversation._id === conversationState._id) {
-        dispatch(getParticipantsFromGroup(conversation._id));
-        dispatch(getAConversation({ conversationId: conversationState._id }));
-      }
-    });
+  const handleConfirmAction = (action) => {
+    setConfirmAction(() => action);
+    handleShowConfirm();
+  };
 
-    socket?.on("newConversation", (conversation) => {
-      console.log("newConversation:", conversation);
-      if (conversation._id === conversationState._id) {
-        dispatch(getParticipantsFromGroup(conversationState._id));
-        dispatch(getAConversation({ conversationId: conversationState._id }));
-      }
-    });
-  }, [socket]);
-
+  const handleConfirm = async () => {
+    if (confirmAction) {
+      await confirmAction();
+    }
+    handleCloseConfirm();
+  };
   return (
     <div className="chat-info">
       {stateOption === "default" && (
@@ -166,7 +167,7 @@ function ChatInfo() {
                   <div className="header-info-tool-icon">
                     <AiOutlineUsergroupAdd
                       className="header-info-tool-icon-image"
-                      onClick={handleShow}
+                      onClick={handleShowAddUser}
                     />
                   </div>
                 </div>
@@ -196,14 +197,14 @@ function ChatInfo() {
             {isAdmin && (
               <div className="group-members-content">
                 <IoIosLogOut className="group-members-icon-image red" />
-                <div onClick={handleCloseGroup} className="red">
+                <div onClick={() => handleConfirmAction(handleCloseGroup)} className="red">
                   Giải tán nhóm
                 </div>
               </div>
             )}
             <div className="group-members-content">
               <IoIosLogOut className="group-members-icon-image red" />
-              <div onClick={handleOutGroup} className="red">
+              <div onClick={() => handleConfirmAction(handleOutGroup)} className="red">
                 Rời nhóm
               </div>
             </div>
@@ -220,7 +221,7 @@ function ChatInfo() {
             <div>Thành viên</div>
           </div>
           <div className="add-members">
-            <div className="add-members-button" onClick={handleShow}>
+            <div className="add-members-button" onClick={handleShowAddUser}>
               <AiOutlineUsergroupAdd />
               Thêm thành viên
             </div>
@@ -271,7 +272,12 @@ function ChatInfo() {
           })}
         </div>
       )}
-      <ModalAddUserToGroup show={showModal} handleClose={handleClose} />
+      <ModalAddUserToGroup show={showAddUserModal} handleClose={handleCloseAddUser} />
+      <ModalConfirm
+        show={showConfirmModal}
+        handleClose={handleCloseConfirm}
+        handleConfirm={handleConfirm}
+      />
     </div>
   );
 }

@@ -130,6 +130,16 @@ export const closeGroupChat = createAsyncThunk(
     }
   }
 );
+export const leaveGroupChat = createAsyncThunk(
+  "group/leave",
+  async ({ conversationId}, thunkAPI) => {
+    try {
+      return await groupChatService.leaveGroupChat(conversationId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
 
 export const groupChatSlice = createSlice({
   name: "groupChats",
@@ -252,6 +262,21 @@ export const groupChatSlice = createSlice({
         state.closedGroup = action.payload;
       })
       .addCase(closeGroupChat.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(leaveGroupChat.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(leaveGroupChat.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.leavedGroup = action.payload;
+      })
+      .addCase(leaveGroupChat.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
